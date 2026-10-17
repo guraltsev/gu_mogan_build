@@ -1,0 +1,34 @@
+From 466c9c91d95a131db28830cda96dcd5d5fc07d4c Mon Sep 17 00:00:00 2001
+From: Gennady Uraltsev <gennady.uraltsev@gmail.com>
+Date: Sat, 17 Oct 2026 13:21:33 -0500
+Subject: [PATCH 3/3] Preserve non-ASCII text in Qt key press events
+
+Casting the first UTF-16 unit to char lost the code point for Unicode
+input (e.g. Greek keyboard layouts), so utf8-kbd-map bindings never matched.
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+---
+ src/Plugins/Qt/qt_utilities.cpp | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/src/Plugins/Qt/qt_utilities.cpp b/src/Plugins/Qt/qt_utilities.cpp
+index ab54b3106..9aea26e12 100644
+--- a/src/Plugins/Qt/qt_utilities.cpp
++++ b/src/Plugins/Qt/qt_utilities.cpp
+@@ -1256,7 +1256,12 @@ from_key_press_event (const QKeyEvent* event) {
+     unsigned short unic    = nss.data ()[0].unicode ();
+     char           text_key= (char) unic;
+ 
+-    if (is_empty (mods_text) || mods_text == "S-") {
++    if ((is_empty (mods_text) || mods_text == "S-") && !nss.isEmpty () &&
++        unic > 255) {
++      // 非 ASCII 文本（如希腊字母键盘）不能截断为 char，否则丢失码点
++      r= from_qstring_utf8 (nss);
++    }
++    else if (is_empty (mods_text) || mods_text == "S-") {
+       // a-z, A-Z, 0-9, and others
+       r << text_key;
+     }
+-- 
+2.55.0.windows.2
+
