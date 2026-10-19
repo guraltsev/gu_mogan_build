@@ -1,38 +1,49 @@
 ;; User-level LaTeX table macros (no Mogan source changes). Loaded from my-init-texmacs.scm.
 ;;
-;; (latex-register-table-macro "<cmd>" "<style package>" "<default option>")
-;; Import: \cmd[o]{a \ b}  ->  (cmd "o" (table (row (cell a)) (row (cell b))))   (\cmd{..} uses the default)
-;; Export: (cmd "o" (table ...)) -> \cmd[o]{a\ b}  (option omitted when equal to the default),
-;;         and \usepackage{<cmd>} is added, so <cmd>.sty must be findable by LaTeX.
+;; (latex-register-table-macro "<cmd>" "<style package>" "<default option>" ["<preamble>" "<latex package>" ...])
+;; Import: \cmd[o]{a <rowbreak> b}  ->  (cmd "o" (table (row (cell a)) (row (cell b))))   (\cmd{..} uses the default)
+;; Export: (cmd "o" (table ...)) -> \cmd[o]{a <rowbreak> b}  (option omitted when equal to the default),
+;;         and, with a <preamble> string, that text (plus \usepackage of the listed LaTeX
+;;         packages) is injected into the exported preamble; without one, \usepackage{<cmd>}
+;;         is added instead, so <cmd>.sty must be findable by LaTeX.
 
 (plugin-initialize 'latex)
 (import-from (latex latex-format))
 (import-from (latex convert-latex-tmtex))
 (import-from (latex convert-latex-tools))
 
-(define latex-table-macros (make-ahash-table))      ; name -> (package . default)
+(define latex-table-macros (make-ahash-table))      ; name -> (package default preamble)
 (define latex-table-macros-used '())
 
-(define (latex-register-table-macro name pkg default)
-  (ahash-set! latex-table-macros name (cons pkg default))
+(define (latex-register-table-macro name pkg default . opt)
   (let ((sym (string->symbol name))
-        (h (lambda (l) (table-macro-export name l))))
+        (h (lambda (l) (table-macro-export name l)))
+        (preamble (and (pair? opt) (car opt)))
+        (latex-pkgs (if (pair? opt) (cdr opt) '())))
+    (ahash-set! latex-table-macros name (list pkg default preamble latex-pkgs))
     (eval `(logic-dispatcher tmtex-extra-methods% (,sym ,h)))
+    (when preamble
+      (let ((body (list '!append preamble (string #\newline))))
+        (eval `(smart-table latex-texmacs-preamble (,sym ,body)))
+      ) ;let
+    ) ;when
   ) ;let
 ) ;define
 
 ;; ---- export ----
 (define (table-macro-export name l)
   (let* ((reg (ahash-ref latex-table-macros name))
-         (opt (if (> (length l) 1) (car l) (cdr reg)))
+         (opt (if (> (length l) 1) (car l) (cadr reg)))
          (res (tmtex (list 'table-macro-rows (cAr l))))
          (rows (if (and (pair? res) (pair? (car res)) (eq? (caar res) '!begin))
                    (cadr res)
                    res))
         ) ;
-    (latex-add-extra (car reg))
+    (if (caddr reg)
+        (for-each latex-add-extra (cadddr reg))
+        (latex-add-extra (car reg)))
     `(,(string->symbol name)
-      ,@(if (== opt (cdr reg)) '() `((!option ,opt)))
+      ,@(if (== opt (cadr reg)) '() `((!option ,opt)))
       ,(if (and (pair? rows) (memq (car rows) '(!group !table))) rows `(!group ,rows)))
   ) ;let*
 ) ;define
@@ -72,7 +83,7 @@
                 (base (table-macro-star-name s)))
            (cond ((and (null? (cddr x)) (reg-of s))
                   (use! (reg-of s))
-                  `(,(car x) ,(cdr (reg-of s)) (table ,@(table-macro-rows (transform-table-macros (cadr x))))))
+                  `(,(car x) ,(cadr (reg-of s)) (table ,@(table-macro-rows (transform-table-macros (cadr x))))))
                  ((and base (reg-of base) (pair? (cddr x)) (null? (cdddr x)) (string? (cadr x)))
                   (use! (reg-of base))
                   `(,(string->symbol base) ,(cadr x) (table ,@(table-macro-rows (transform-table-macros (caddr x))))))
@@ -115,4 +126,6 @@
 ) ;converter
 
 ;; Registrations
-(latex-register-table-macro "lga" "lga" "t")
+(latex-register-table-macro "lga" "lga" "t"
+  "\\ProvideDocumentCommand\\lga{O{t} m}{\\begin{lgathered}[#1]#2\\end{lgathered}}"
+  "mathtools")
