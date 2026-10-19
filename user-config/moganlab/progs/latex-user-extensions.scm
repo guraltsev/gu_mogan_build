@@ -346,3 +346,23 @@
                                           (tmtex (car l)))))))))
   ) ;lambda
   math-font-shorthands)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Wide accents: Mogan's wide ~ ^ and bar export as \tilde \hat \bar, which only
+;; fit one letter. When one of them occurs, the preamble redefines it to the wide
+;; version (\widetilde \widehat \overline), so the exported accent stretches.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(for-each
+  (lambda (row)
+    (eval (list 'smart-table 'latex-texmacs-preamble
+                (list (string->symbol (car row))
+                      (list '!append
+                            (string-append "\\RenewDocumentCommand{\\" (car row)
+                                           "}{m}{\\" (cadr row) "{#1}}"
+                                           " % \\" (car row) ": redefined as \\" (cadr row)
+                                           " (Mogan wide accent)"
+                                           (string #\newline))))))
+  ) ;lambda
+  '(("tilde" "widetilde") ("hat" "widehat") ("bar" "overline")))

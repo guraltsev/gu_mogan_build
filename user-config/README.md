@@ -33,6 +33,9 @@ files go; copy them there and restart Mogan.
   `\mc \mb \mbf \mf \ms` are synonyms of `\mathcal \mathbb \mathbf \mathfrak \mathscr`: import
   gives the same result as the long forms, export writes the short forms, and each one used is
   defined in the preamble (with a comment, plus its package: amssymb, mathrsfs).
+  Mogan's wide accents export as `\tilde`, `\hat`, `\bar`; when one occurs, the preamble
+  redefines it (`\RenewDocumentCommand`) to `\widetilde`, `\widehat`, `\overline`. `\check` is left
+  alone: standard LaTeX has no `\widecheck` (only font packages such as stix provide one).
 - `moganlab/packages/oper.stem` - Mogan macro `oper`: upright operator name.
 - `moganlab/packages/mathfonts.stem` - Mogan macros `mc mb mbf mf ms` (cal, Bbb, bold, Euler, cal* fonts).
 - `moganlab/packages/lga.stem` - Mogan macro `lga`: left-aligned one-column table, top/centre/bottom
@@ -40,7 +43,7 @@ files go; copy them there and restart Mogan.
 - `tex/lga.sty` - optional standalone copy of the same definition, for hand-written documents;
   exported files do not need it.
 - `tests/` - headless test suites, one per feature: `test-lga.scm`, `test-symbols.scm`,
-  `test-oper.scm`, `test-mathfonts.scm`, `test-clipboard.scm` (paste and copy of LaTeX snippets);
+  `test-oper.scm`, `test-mathfonts.scm`, `test-accents.scm`, `test-clipboard.scm` (paste and copy of LaTeX snippets);
   shared code in `helpers.scm`. Each covers import, export, the preamble definitions and comments,
   that unused commands are not defined, and round trips. Run from PowerShell:
 
