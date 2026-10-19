@@ -135,6 +135,28 @@ LaTeX proof and exporting the result gives `\begin{proof}[Proof of Theorem 1]` w
 - `TeXmacs/tests/7003.scm` against unmodified `upstream/main`: the first 8 checks (import only) give
   `5 correct, 3 failed`; with the change all 17 checks pass (console output of the test run below).
 - Converting `proof.tex` with `-headless -c`: outputs shown above; the plain proof is identical in both.
+- Full file round trip on `main` with both commits: `proof.tex` -> `proof.tmu` (as above) -> `proof.tex`
+  with `-headless -c` gives
+
+```latex
+\documentclass{article}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsthm}
+
+\begin{document}
+
+\begin{proof}[Proof of Theorem 1]
+  Because $x$.
+\end{proof}
+
+\begin{proof}
+  Plain.
+\end{proof}
+
+\end{document}
+```
+
 
 ## Not checked
 
@@ -143,8 +165,6 @@ LaTeX proof and exporting the result gives `\begin{proof}[Proof of Theorem 1]` w
 - `\begin{proof}[...]` in styles other than the default article style, and proofs aliased by the importer
   (`pf`, `dem`, `preuve`, `IEEEproof`) with an option; those aliases are renamed to `proof` before this
   code runs, so they should behave the same, but this was not tried.
-- The full-file converter round trip (`.tex` -> `.tmu` -> `.tex`) end to end: the headless `.tmu` -> `.tex`
-  step stopped writing output in my environment, so the round trip is covered by the Scheme test only.
 - macOS and Linux (all work was on Windows 11); the test was run by a hand-made headless command, not by
   `xmake r 7003`.
 
