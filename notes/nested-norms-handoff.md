@@ -148,7 +148,7 @@ spaces around `{}` re-imports identically).
   (head `d139cee2c` at the time). The 5 uncommitted files above are on top of that.
   Feature branches (each one commit on upstream/main, pushed): skip-remote-cursors-on-repaint,
   delay-toolbar-refresh, style-cache-invalidation, headless-convert, user-keyboard-layer,
-  amsmath-gathered, aligned-valign-control, aligned-enter-nesting. Do NOT name branches with the
+  amsmath-gathered (now pr/amsmath-aligned-gathered), aligned-valign-control, aligned-enter-nesting. Do NOT name branches with the
   `username/200_27/xxx` scheme (the user dislikes it); use plain descriptive names.
 - Suggested for this work: `git checkout -b latex-nested-norms upstream/main` (the 5 files are
   unchanged between `main` and `upstream/main`, so the edits carry over), commit, push to

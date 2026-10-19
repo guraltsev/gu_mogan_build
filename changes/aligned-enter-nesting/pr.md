@@ -1,4 +1,4 @@
-**Branch:** `aligned-enter-nesting` (1 commit, `e09cb601c`) -> `MoganLab/mogan:main`
+**Branch:** `pr/aligned-enter-nesting` (1 commit, `3d5a32d00`) -> `MoganLab/mogan:main`
 
 **Title:** `[NNNN] Fix Enter in aligned nesting the table instead of adding a row`
 

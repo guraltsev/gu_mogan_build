@@ -1,4 +1,4 @@
-**Branch:** `delay-toolbar-refresh` (1 commit, `5e21639cd`) -> `MoganLab/mogan:main`
+**Branch:** `pr/delay-toolbar-refresh` (1 commit, `8672b6be5`) -> `MoganLab/mogan:main`
 
 **Title:** `[NNNN] Delay the mode/focus toolbar refresh while the cursor moves`
 

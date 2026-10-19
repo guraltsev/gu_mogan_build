@@ -1,4 +1,4 @@
-**Branch:** `amsmath-gathered` (1 commit, `58148954a`) -> `MoganLab/mogan:main`
+**Branch:** `pr/amsmath-aligned-gathered` (1 commit, `115c45b0e`) -> `MoganLab/mogan:main`
 
 **Title:** `[NNNN] Support amsmath aligned and gathered: gathered macro, LaTeX import and export`
 

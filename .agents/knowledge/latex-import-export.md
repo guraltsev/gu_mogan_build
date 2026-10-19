@@ -58,7 +58,7 @@
 
 ## aligned / gathered facts
 - Upstream imports plain `\begin{aligned}` as generic `tabular*`; `aligned[t]` came out as
-  `<aligned|t|<tformat...>>`; `gathered` as unsplit text. Fixed in branch `amsmath-gathered`.
+  `<aligned|t|<tformat...>>`; `gathered` as unsplit text. Fixed in branch `pr/amsmath-aligned-gathered` (formerly `amsmath-gathered`).
 - `gathered` is defined in `TeXmacs/packages/environment/env-math.stem` (copy of `aligned*` with one
   centered column); put it inside `equation` for one number. Vertical position = `table-valign` in the
   block's own tformat: `f` axis (default when unset), `t`, `c`, `b`.

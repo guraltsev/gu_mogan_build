@@ -1,4 +1,4 @@
-**Branch:** `pr/latex-matrix-envs` (1 commit, `1d9023a98`) -> `MoganLab/mogan:main`
+**Branch:** `pr/latex-matrix-envs` (1 commit, `83e064573`) -> `MoganLab/mogan:main`
 
 **Title:** `[NNNN] LaTeX: map matrix, pmatrix and bmatrix to native Mogan tags`
 

@@ -1,4 +1,4 @@
-**Branch:** `latex-nested-norms` (1 commit, `92a7ac6e0`) -> `MoganLab/mogan:main`
+**Branch:** `pr/latex-nested-norms` (1 commit, `b27075851`) -> `MoganLab/mogan:main`
 
 **Title:** `[NNNN] Keep nested norms and absolute values apart in LaTeX import and export`
 

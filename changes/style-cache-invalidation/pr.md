@@ -1,4 +1,4 @@
-**Branch:** `style-cache-invalidation` (1 commit, `0ec96f773`) -> `MoganLab/mogan:main`
+**Branch:** `pr/style-cache-invalidation` (1 commit, `47723161c`) -> `MoganLab/mogan:main`
 
 **Title:** `[NNNN] Make the style cache notice changed style and package files`
 

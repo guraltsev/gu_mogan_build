@@ -1,4 +1,4 @@
-**Branch:** `latex-left-double-bar` (1 commit, `c18646126`) -> `MoganLab/mogan:main`
+**Branch:** `pr/latex-left-double-bar` (1 commit, `a406424a4`) -> `MoganLab/mogan:main`
 
 **Title:** `[NNNN] Import \left\| as a double bar`
 

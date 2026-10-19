@@ -1,4 +1,4 @@
-**Branch:** `skip-remote-cursors-on-repaint` (1 commit, `ea8738fa0`) -> `MoganLab/mogan:main`
+**Branch:** `pr/skip-remote-cursors-on-repaint` (1 commit, `3d700d137`) -> `MoganLab/mogan:main`
 
 **Title:** `[NNNN] Skip the whole-document conversion in get_remote_cursors when there are no remote cursors`
 

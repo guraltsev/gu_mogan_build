@@ -66,7 +66,7 @@ Run `MoganSTEM.exe -headless -c t.tex t.tmu` and read `t.tmu`.
 
 ## Fix
 
-Pull request: branch `amsmath-gathered`. It adds the `gathered` macro (a centered single
+Pull request: branch `pr/amsmath-aligned-gathered`. It adds the `gathered` macro (a centered single
 column, meant to be placed in `equation`), imports `aligned` and `gathered` as the native
 macros with a real table, one row per row separator, stores `[t|b|c]` as `table-valign`
 (default `c`), matches both spellings of the renamed environment, and declares the

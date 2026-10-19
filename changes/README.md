@@ -19,7 +19,7 @@ reviewed and merged in any order. One soft dependency is noted below.
 | `style-cache-invalidation/` | 3 | `pr/style-cache-invalidation` | `new_style.cpp` |
 | `headless-convert/` | 4 | `pr/headless-convert` | `init_texmacs.cpp` |
 | `user-keyboard-layer/` | 5 | `pr/user-keyboard-layer` | `kbd-define.scm`, test, `shortcut-edit.scm` |
-| `amsmath-gathered/` | 6 | `pr/amsmath-gathered` | `env-math.stem`, `fromtex_post.cpp`, 2 LaTeX DRD files |
+| `amsmath-aligned-gathered/` | 6 | `pr/amsmath-aligned-gathered` | `env-math.stem`, `fromtex_post.cpp`, 2 LaTeX DRD files |
 | `aligned-enter-nesting/` | 8 | `pr/aligned-enter-nesting` | `math-edit.scm` |
 | `latex-nested-norms/` | 9 | `pr/latex-nested-norms` | LaTeX nested-norm import/export |
 | `latex-left-double-bar/` | 10 | `pr/latex-left-double-bar` | `fromtex.cpp` |
@@ -36,7 +36,7 @@ reviewed and merged in any order. One soft dependency is noted below.
 | `style-cache-invalidation/` | 3 | from cache files and code; minimal repro with a trivial macro not tried |
 | `headless-convert/` | 4 | **yes**: `.tm -> .tex` and `.tm -> .tmu` write no file |
 | `user-keyboard-layer/` | 5 | **yes**: `alpha` binding replaced by `<#3B1>` after the keyboard modules load |
-| `amsmath-gathered/` | 6 | **yes**: all four import symptoms |
+| `amsmath-aligned-gathered/` | 6 | **yes**: all four import symptoms |
 | `aligned-enter-nesting/` | 8 | **yes**, headless, `table-edit` loaded before `math-edit` |
 | `latex-nested-norms/` | 9 | see the file |
 | `latex-left-double-bar/` | 10 | see the file |
@@ -102,7 +102,7 @@ I have not done this, because it rewrites published branches.
 Every `pr/*` branch has a PR text (`pr-N-<name>/pr.md`) and a bug report (`pr-N-<name>/bug.md`) in its own directory; add both when a
 new PR branch is created. The branch names and the commit hashes of PRs 1-8 in the first table are
 from before the branches were renamed to `pr/<name>` (for example `amsmath-gathered` is now
-`pr/amsmath-gathered`, commit `9f4508821`); check with `git log pr/<name>` before relying on them.
+`pr/amsmath-aligned-gathered`, commit `115c45b0e`); check with `git log pr/<name>` before relying on them.
 
 
 ## Patch files
@@ -115,7 +115,7 @@ applies to, so it can be applied or ported after the branch is deleted.
 
 - `dev-notes/`: the notes written while each change was developed, kept as written (from the former
   `patches/` series; file names such as `05-debounce-toolbar-refresh.md` are the old step folders).
-  `delay-toolbar-refresh` also covers old step 12, `headless-convert` old step 11, `amsmath-gathered` old
+  `delay-toolbar-refresh` also covers old step 12, `headless-convert` old step 11, `amsmath-aligned-gathered` old
   steps 1, 6 and 7. `_old-patch-series/` holds the READMEs of the two superseded series (old step -> PR table).
 - `user-keyboard-layer/USAGE.md` and `examples/`: how to use `user-kbd-map`.
 - `delay-toolbar-refresh/probe-focus-icons.scm`: headless probe for the focus-bar icons.
