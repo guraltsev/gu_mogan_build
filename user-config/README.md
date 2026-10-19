@@ -22,7 +22,7 @@ files go; copy them there and restart Mogan.
   argument it adds `\usepackage{name}` instead.
   The same file maps `\R \C \Q \Z \N` to the symbols typed as `RR CC QQ ZZ NN` (`<bbb-R>` ...):
   import accepts `\R`, `\mathbb{R}` and `\mathbb R`; export writes `\R` and, only if used,
-  `\NewDocumentCommand\R{}{\mathbb{R}}` plus `amssymb` in the preamble. More via
+  `\NewDocumentCommand{\R}{}{\mathbb{R}}` plus `amssymb` in the preamble. More via
   `(latex-register-symbol-command "R" "<bbb-R>" "R")`.
 - `moganlab/packages/lga.stem` - Mogan macro `lga`: left-aligned one-column table, top/centre/bottom
   baseline from the first argument.
