@@ -192,10 +192,17 @@
 ;; \tmop -> \op (operator names), defined in the preamble like any macro
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(eval '(smart-table latex-texmacs-macro (op (ensuremath (operatorname 1)))))
+(eval (list 'smart-table 'latex-texmacs-preamble
+            (list 'tmopx (list '!append
+                            (string-append
+                              "\\NewDocumentCommand{\\op}{m}{\\ensuremath{\\operatorname{#1}}}"
+                              " % \\op{...}: operator name (Mogan tmop)"
+                              (string #\newline))))))
 
 (define (rename-tmop x)
-  (cond ((and (pair? x) (eq? (car x) 'tmop)) (cons 'op (map rename-tmop (cdr x))))
+  (cond ((and (pair? x) (eq? (car x) 'tmop))
+         (latex-add-extra "amsmath")
+         (cons 'tmopx (map rename-tmop (cdr x))))
         ((pair? x) (map rename-tmop x))
         (else x)
   ) ;cond
@@ -205,3 +212,28 @@
   (:require #t)
   (rename-tmop (former x))
 ) ;tm-define
+
+;; Mogan has a built-in macro named `op` whose \newcommand would clash, so the
+;; tree uses the internal name tmopx and the finished text is renamed to \op.
+(define conservative-texmacs->latex-before-op conservative-texmacs->latex)
+
+(define (conservative-texmacs->latex-with-op . args)
+  (string-replace (apply conservative-texmacs->latex-before-op args)
+                  "\\tmopx" "\\op")
+) ;define
+
+(converter texmacs-stree
+  latex-document
+  (:function-with-options conservative-texmacs->latex-with-op)
+  (:option "texmacs->latex:source-tracking" "off")
+  (:option "texmacs->latex:conservative" "on")
+  (:option "texmacs->latex:transparent-source-tracking" "on")
+  (:option "texmacs->latex:attach-tracking-info" "on")
+  (:option "texmacs->latex:replace-style" "on")
+  (:option "texmacs->latex:expand-macros" "on")
+  (:option "texmacs->latex:expand-user-macros" "off")
+  (:option "texmacs->latex:indirect-bib" "off")
+  (:option "texmacs->latex:use-macros" "on")
+  (:option "texmacs->latex:protect-nested-bars" "on")
+  (:option "texmacs->latex:encoding" "UTF-8")
+) ;converter
