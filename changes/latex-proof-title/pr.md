@@ -1,4 +1,4 @@
-**Branch:** `pr/latex-proof-title` (1 commit) -> `MoganLab/mogan:main`
+**Branch:** `pr/latex-proof-title` (2 commits) -> `MoganLab/mogan:main`
 
 **Title:** `[NNNN] LaTeX: import \begin{proof}[Title] as a titled proof`
 
@@ -25,13 +25,20 @@ with anything. Neither marker survived.
 - Because the end marker has no option, `finalize_layout` keeps a small stack recording whether each open
   proof was titled, and closes it with `render-proof` or `proof` accordingly. Untitled and nested proofs
   behave as before.
-- New integration test `TeXmacs/tests/7003.scm` (8 checks: titled, plain, and a titled proof containing a
-  plain one).
+- Export (second commit): `tmtex-render-proof` in `convert-latex-tmtex.scm` wrote a custom `proof*`
+  environment, defined in the preamble as a wrapper around `egin{proof}[...]`. It now writes
+  `egin{proof}[Title]` directly, or a plain `egin{proof}` for an empty title (what the editor leaves
+  when the title of a proof is made editable). This is the same direction as #2985 / #2990, which fixed the
+  `proof` and `proof*` tags but not `render-proof`, so a titled proof still did not round-trip.
+- `render-proof` is the tag Mogan itself uses for a proof with its own title (the editor converts
+  `proof` into `render-proof` when the title is made editable), so it is the right target for the import.
+- New integration test `TeXmacs/tests/7003.scm` (17 checks: import of titled, plain and nested proofs,
+  export of titled, empty-title and plain proofs, and import followed by export).
 
 ## Verified (Windows, release build, headless)
 
-- `TeXmacs/tests/7003.scm`: **3 of 8 checks fail on unmodified `upstream/main`, 8 of 8 pass with the
-  change** (`attachments/test-7003-*.txt`).
+- `TeXmacs/tests/7003.scm`: **3 of the 8 import checks fail on unmodified `upstream/main`; all 17 checks pass with the
+  changes** (`attachments/test-7003-*.txt`).
 - Converting `attachments/proof.tex`: output before `attachments/proof-before.tmu`, after
   `attachments/proof-after.tmu`.
 - Exporting the imported document back to LaTeX produced `\begin{proof*}{Proof of Theorem 1} ... \end{proof*}`

@@ -80,11 +80,15 @@ The result is a document with neither begin nor end.
 
 ## Related issues
 
-- #2985 (closed) asked for the opposite direction: Mogan's proof block should export to LaTeX as
-  `\begin{proof} ... \end{proof}`. This report is about the import side. After the import fix, a titled
-  proof exports through the existing `render-proof` path as a custom `proof*` environment (defined in the
-  preamble as a wrapper around `\begin{proof}[...]`) rather than as a plain `\begin{proof}[Title]`;
-  that is the same kind of export problem as #2985 and is not changed here.
+- #2985 (closed, fixed by #2990, tests in #3052) asked for the opposite direction: Mogan's proof block
+  should export to LaTeX as `egin{proof} ... \end{proof}`. #2990 changed the rules for the `proof` and
+  `proof*` tags. A proof with a custom title, however, is the `render-proof` tag in current documents
+  (the editor itself turns `proof` into `render-proof` when the title is made editable), and its
+  separate rule `tmtex-render-proof` still wrote a custom `proof*` environment
+  (`egin{proof*}{Title}` plus a preamble `
+ewenvironment{proof*}[1]{egin{proof}[{#1}]}...`).
+  Together with this import fix that broke the round trip, so the PR also changes that export rule to
+  `egin{proof}[Title]` (plain `egin{proof}` for an empty title).
 
 ## Related, separate
 
