@@ -25,7 +25,7 @@ files go; copy them there and restart Mogan.
   `\NewDocumentCommand{\R}{}{\mathbb{R}}` plus `amssymb` in the preamble. More via
   `(latex-register-symbol-command "R" "<bbb-R>" "R")`.
   It also renames Mogan's `\tmop{...}` to `\op{...}` on export (defined once in the preamble with
-  `\newcommand{\op}[1]{\ensuremath{\operatorname{#1}}}`); import reads `\op{foo}` as the plain string `foo`.
+  `\NewDocumentCommand{\op}{m}{\ensuremath{\operatorname{#1}}}`); import reads `\op{foo}` as the plain string `foo`.
 - `moganlab/packages/lga.stem` - Mogan macro `lga`: left-aligned one-column table, top/centre/bottom
   baseline from the first argument.
 - `tex/lga.sty` - optional standalone copy of the same definition, for hand-written documents;
