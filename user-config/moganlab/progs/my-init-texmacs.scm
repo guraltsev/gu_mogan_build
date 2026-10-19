@@ -23,12 +23,11 @@
 
 (user-kbd-map ("A-x" (interactive exec-interactive-command)))
 
-;; Keys below use Mogan's prefix names (var, math, copyto, cutto). The user layer stores
-;; a key literally, but the keyboard delivers physical keys: Tab, Alt+letter, Ctrl+Shift+C.
+;; Keys below use Mogan's prefix names (var, math). The user layer stores a key
+;; literally, but the keyboard delivers physical keys: Tab, Alt+letter.
 ;; So a binding written "A-t var var" never fired from the keyboard (only through
 ;; emulate-keyboard). user-kbd-map+ registers each binding under both spellings.
-;; var -> tab, unvar -> S-tab, "math k" -> A-k; copyto -> C-C and cutto -> C-X (what
-;; Mogan's own key rewriting gives for the standard keyboard style).
+;; var -> tab, unvar -> S-tab, "math k" -> A-k.
 (define (user-key-tokens s)
   (let loop ((cs (string->list s)) (cur '()) (acc '()))
     (define (flush) (if (null? cur) acc (cons (list->string (reverse cur)) acc)))
@@ -46,8 +45,6 @@
            (loop (cddr ts) (cons (string-append "A-" (cadr ts)) acc)))
           ((equal? (car ts) "var") (loop (cdr ts) (cons "tab" acc)))
           ((equal? (car ts) "unvar") (loop (cdr ts) (cons "S-tab" acc)))
-          ((equal? (car ts) "copyto") (loop (cdr ts) (cons "C-C" acc)))
-          ((equal? (car ts) "cutto") (loop (cdr ts) (cons "C-X" acc)))
           (else (loop (cdr ts) (cons (car ts) acc))))))
 
 (define-macro (user-kbd-map+ . l)
@@ -64,13 +61,6 @@
 (user-kbd-unmap
         (:mode in-math?)
         "| `")
-
-
-(user-kbd-map+
-        ("copyto l" (clipboard-copy-export "latex" "primary"))
-        ("cutto l" (clipboard-cut-export "latex" "primary"))
-        ("pastefrom l" (clipboard-paste-import "latex" "primary")))
-
 
 
 ;; "$" in text starts inline math (built-in); "$ $" starts display math.  The

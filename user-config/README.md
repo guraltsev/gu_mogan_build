@@ -14,12 +14,12 @@ files go; copy them there and restart Mogan.
 - `moganlab/progs/my-init-texmacs.scm` - user init: keyboard bindings (`$`, `$$`, Alt+Up/Down,
   backtick math keys, Alt+T inserts `lga`), the typed commands `\mc \mb \mbf \mf \ms \R \C \Q \Z \N
   \1 \oper \lga` (type the name, press Enter), and a `(load ...)` of the LaTeX extensions below.
-  Bindings use Mogan's prefix names (`var`, `math`, `copyto`, `cutto`) but the keyboard sends physical keys
-  (Tab, Alt+letter, Ctrl+Shift+C), and the user layer stores a key literally. The macro `user-kbd-map+`
-  therefore registers every binding under both spellings (`var` -> `tab`, `math t` -> `A-t`,
-  `copyto` -> `C-C`, `cutto` -> `C-X`); a test checks that each physical form reaches the same action.
-  Not covered: `A-x` (opens the "Interactive command" prompt, which only runs commands that take
-  arguments) and `pastefrom l`, which has no physical key (`Ctrl+Shift+V` is Mogan's smart paste).
+  Bindings use Mogan's prefix names (`var`, `math`) but the keyboard sends physical keys
+  (Tab, Alt+letter), and the user layer stores a key literally. The macro `user-kbd-map+`
+  therefore registers every binding under both spellings (`var` -> `tab`, `math t` -> `A-t`);
+  a test checks that each physical form reaches the same action.
+  Not covered: `A-x`, which opens the "Interactive command" prompt (it only runs commands that
+  take arguments). Mogan's own copy-to / cut-to / paste-from shortcuts are left at their defaults.
   `\lga` and `\oper` (and Alt+T) add their style package to the document if it is missing; without
   the package Mogan cannot render the tag and shows a plain centered table.
 - `moganlab/progs/latex-user-extensions.scm` - LaTeX import/export extensions (one-column table macros), no

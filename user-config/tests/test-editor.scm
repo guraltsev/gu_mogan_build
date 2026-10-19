@@ -73,8 +73,8 @@
       (check (tree-has? (tree->stree (buffer-tree)) 'tabular*) => #f))
     '("A-t" "math t")))
 
-;; Keys in my-init-texmacs.scm are written with Mogan's prefix names (var, math, copyto),
-;; but the keyboard sends physical keys (tab, A-t, C-C). Every binding must also resolve under
+;; Keys in my-init-texmacs.scm are written with Mogan's prefix names (var, math),
+;; but the keyboard sends physical keys (tab, A-t). Every binding must also resolve under
 ;; its physical spelling to the same action. Lookup only: nothing is run, so the clipboard
 ;; and interactive keys are safe to include.
 (define (init-keys)
@@ -114,10 +114,10 @@
           (when (!= p k)
             (check (list k (action-source p)) => (list k (action-source k))))))
       keys))
-  ;; the keys that were broken before: Alt+T, its variants, Tab variants, Ctrl+Shift+C
+  ;; the keys that were broken before: Alt+T, its variants, Tab variants, Alt+T
   (for-each
     (lambda (k) (check (and (kbd-find-key-binding k) #t) => #t))
-    '("A-t" "A-t tab" "A-t tab tab" "A-t tab tab tab" "( A-t" "C-/ tab" "C-C l" "C-X l"))
+    '("A-t" "A-t tab" "A-t tab tab" "A-t tab tab tab" "( A-t" "C-/ tab"))
   (check (action-source "A-t") => (action-source "math t"))
   (check (action-source "A-t tab tab") => (action-source "math t var var")))
 
