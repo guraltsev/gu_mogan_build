@@ -62,6 +62,35 @@
         (:mode in-math?)
         "| `")
 
+;; Copy to / cut to a format: Ctrl+Shift+C or Ctrl+Shift+X, then a letter. The keys are
+;; written as the physical keys (C-C is Ctrl+Shift+c); Mogan's own copy-to prefix has no
+;; keyboard binding in this setup. Nothing happens when no text is selected: the clipboard
+;; command crashed Mogan in that case when I drove it through the key dispatcher.
+;; Paste from has no key: Ctrl+Shift+V is Mogan's smart paste, which already detects LaTeX.
+(tm-define (user-copy-to fmt)
+  (when (selection-active-any?) (clipboard-copy-export fmt "primary")))
+
+(tm-define (user-cut-to fmt)
+  (when (selection-active-any?) (clipboard-cut-export fmt "primary")))
+
+(user-kbd-map
+        ("C-C l" (user-copy-to "latex"))
+        ("C-C h" (user-copy-to "html"))
+        ("C-C v" (user-copy-to "verbatim"))
+        ("C-C b" (user-copy-to "bibtex"))
+        ("C-C s" (user-copy-to "stem"))
+        ("C-C c" (user-copy-to "code"))
+        ("C-C u" (user-copy-to "tmu"))
+        ("C-C t" (user-copy-to "texmacs"))
+        ("C-X l" (user-cut-to "latex"))
+        ("C-X h" (user-cut-to "html"))
+        ("C-X v" (user-cut-to "verbatim"))
+        ("C-X b" (user-cut-to "bibtex"))
+        ("C-X s" (user-cut-to "stem"))
+        ("C-X c" (user-cut-to "code"))
+        ("C-X u" (user-cut-to "tmu"))
+        ("C-X t" (user-cut-to "texmacs")))
+
 
 ;; "$" in text starts inline math (built-in); "$ $" starts display math.  The
 ;; built-in "$ $" binding ignores context and would nest a display equation

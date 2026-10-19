@@ -121,10 +121,37 @@
   (check (action-source "A-t") => (action-source "math t"))
   (check (action-source "A-t tab tab") => (action-source "math t var var")))
 
+;; Ctrl+Shift+C / Ctrl+Shift+X then a letter: copy to / cut to a format. Only lookups and the
+;; no-selection path are run here; the real clipboard command crashes headless Mogan and would
+;; overwrite the system clipboard.
+(define (test-copy-cut-keys)
+  (lazy-keyboard-force #t)
+  (new-buffer)
+  (set-style-list '("generic"))
+  (make 'equation*)
+  (for-each
+    (lambda (prefix)
+      (for-each
+        (lambda (letter)
+          (check (and (kbd-find-key-binding (string-append prefix " " letter)) #t) => #t))
+        '("l" "h" "v" "b" "s" "c" "u" "t")))
+    '("C-C" "C-X"))
+  ;; the standard shortcuts are untouched: Ctrl+C/X/V and Ctrl+Shift+V (smart paste)
+  (check (action-source "C-c") => '(kbd-copy))
+  (check (action-source "C-x") => '(kbd-cut))
+  (check (action-source "C-v") => '(kbd-paste))
+  (check (action-source "C-V") => '(kbd-magic-paste))
+  ;; with nothing selected the actions do nothing (and do not touch the clipboard)
+  (check (selection-active-any?) => #f)
+  (user-copy-to "latex")
+  (user-cut-to "latex")
+  (check (selection-active-any?) => #f))
+
 (test-fonts)
 (test-symbols)
 (test-package-macros)
 (test-alt-t)
 (test-alt-t-key)
 (test-physical-keys)
+(test-copy-cut-keys)
 (finish)
