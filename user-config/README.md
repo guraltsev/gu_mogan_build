@@ -15,12 +15,15 @@ files go; copy them there and restart Mogan.
   backtick math keys, Alt+T inserts `lga`) and a `(load ...)` of the table-macro registry.
 - `moganlab/progs/latex-table-macros.scm` - LaTeX import/export for one-column table macros, no
   Mogan source changes. Register more with
-  `(latex-register-table-macro "name" "style-package" "default-option")` at its end.
-  `\name[o]{a \ b}` imports as `(name "o" (table ...))`; export writes `\name[o]{...}`
-  (option omitted at the default) and adds `\usepackage{name}`.
+  `(latex-register-table-macro "name" "style-package" "default-option" "preamble" "latex-pkg" ...)`
+  at its end. Importing `\name[o]{rows separated by row breaks}` gives `(name "o" (table ...))`;
+  export writes `\name[o]{...}` (option omitted at the default) and injects the preamble text
+  and `\usepackage` lines into the exported file, so no `.sty` is needed. Without a preamble
+  argument it adds `\usepackage{name}` instead.
 - `moganlab/packages/lga.stem` - Mogan macro `lga`: left-aligned one-column table, top/centre/bottom
   baseline from the first argument.
-- `tex/lga.sty` - LaTeX side: `\lga[t|c|b]{...}` on top of mathtools' `lgathered`.
+- `tex/lga.sty` - optional standalone copy of the same definition, for hand-written documents;
+  exported files do not need it.
 - `tests/7003-old-ltae-inrepo.scm.txt` - obsolete test from the first (in-repo, `ltae`) attempt;
   kept for reference, not runnable as is.
 
