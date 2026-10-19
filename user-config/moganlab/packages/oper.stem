@@ -1,0 +1,16 @@
+(document (TeXmacs "1.99.20")
+  (style "source")
+  (body
+    (document
+      (active*
+        (src-title (document (src-package "oper" "1.0")
+                     (src-purpose (document "oper: upright operator name (LaTeX \\oper{...}).")
+                     ) ;src-purpose
+                   ) ;document
+        ) ;src-title
+      ) ;active*
+      (assign "oper" (macro "x" (math-up (arg "x"))))
+      (drd-props "oper" "syntax" (macro "x" "x"))
+    ) ;document
+  ) ;body
+) ;document

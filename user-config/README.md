@@ -24,8 +24,11 @@ files go; copy them there and restart Mogan.
   import accepts `\R`, `\mathbb{R}` and `\mathbb R`; export writes `\R` and, only if used,
   `\NewDocumentCommand{\R}{}{\mathbb{R}}` plus `amssymb` in the preamble. More via
   `(latex-register-symbol-command "R" "<bbb-R>" "R")`.
-  It also renames Mogan's `\tmop{...}` to `\op{...}` on export (defined once in the preamble with
-  `\NewDocumentCommand{\op}{m}{\ensuremath{\operatorname{#1}}}`); import reads `\op{foo}` as the plain string `foo`.
+  `\oper[*]{...}` is a synonym of `\operatorname` (defined once in the preamble with
+  `\NewDocumentCommand{\oper}{s m}{...}`, starred form for limits). Export renames Mogan's
+  `\tmop{...}` to `\oper{...}`, and Mogan's own `oper` macro exports to it as well; import reads
+  `\oper{x}` as `<oper|x>` and adds the `oper` package.
+- `moganlab/packages/oper.stem` - Mogan macro `oper`: upright operator name.
 - `moganlab/packages/lga.stem` - Mogan macro `lga`: left-aligned one-column table, top/centre/bottom
   baseline from the first argument.
 - `tex/lga.sty` - optional standalone copy of the same definition, for hand-written documents;

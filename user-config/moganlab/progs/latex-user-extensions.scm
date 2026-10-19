@@ -146,13 +146,12 @@
               (pair? (cadr x)) (eq? (caadr x) 'document))
          (let ((rest (drop-symbol-assigns (cdadr x))))
            (if (null? rest) '%drop `(hide-preamble (document ,@rest)))))
-        ;; \op{foo}: the importer reads the argument as math ("f*o*o")
-        ((and (pair? x) (eq? (car x) 'op) (pair? (cdr x)) (null? (cddr x))
+        ;; \oper{foo}: the importer reads the argument as math ("f*o*o")
+        ((and (pair? x) (eq? (car x) 'oper) (pair? (cdr x)) (null? (cddr x))
               (string? (cadr x)))
-         ;; math-up, not a bare string: a single letter would be italic and a longer
-         ;; name would merge with a neighbouring letter ("Diff" + "f" -> "Difff")
-         `(math-up ,(list->string (filter (lambda (c) (not (char=? c #\*)))
-                                          (string->list (cadr x))))))
+         (set! latex-table-macros-used (cons "oper" latex-table-macros-used))
+         `(oper ,(list->string (filter (lambda (c) (not (char=? c #\*)))
+                                       (string->list (cadr x))))))
         ((pair? x) (filter (lambda (e) (not (eq? e '%drop)))
                            (map transform-symbol-commands x)))
         (else x)
@@ -165,8 +164,8 @@
   (let ((res (apply latex-document->texmacs-before-table-macros (cons x opts))))
     (set! latex-table-macros-used '())
     (stree->tree
-      (transform-symbol-commands
-        (add-table-macro-packages (transform-table-macros (tree->stree res)))))
+      (add-table-macro-packages
+        (transform-symbol-commands (transform-table-macros (tree->stree res)))))
   ) ;let
 ) ;define
 
@@ -191,20 +190,22 @@
 (latex-register-symbol-command "N" "<bbb-N>" "N")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; \tmop -> \op (operator names), defined in the preamble like any macro
+;; \oper{...}: operator names. Mogan's exporter writes unknown operator names as
+;; \tmop{...}; that is renamed to \oper, and Mogan's own `oper` macro (package
+;; oper.stem) exports to the same command. Defined once in the preamble.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (eval (list 'smart-table 'latex-texmacs-preamble
-            (list 'tmopx (list '!append
-                            (string-append
-                              "\\NewDocumentCommand{\\op}{m}{\\ensuremath{\\operatorname{#1}}}"
-                              " % \\op{...}: operator name (Mogan tmop)"
-                              (string #\newline))))))
+            (list 'oper (list '!append
+                              (string-append
+                                "\\NewDocumentCommand{\\oper}{s m}{\\ensuremath{\\IfBooleanTF{#1}{\\operatorname*{#2}}{\\operatorname{#2}}}}"
+                                " % \\oper[*]{...}: synonym of \\operatorname (Mogan oper, tmop)"
+                                (string #\newline))))))
 
 (define (rename-tmop x)
   (cond ((and (pair? x) (eq? (car x) 'tmop))
          (latex-add-extra "amsmath")
-         (cons 'tmopx (map rename-tmop (cdr x))))
+         (cons 'oper (map rename-tmop (cdr x))))
         ((pair? x) (map rename-tmop x))
         (else x)
   ) ;cond
@@ -215,27 +216,12 @@
   (rename-tmop (former x))
 ) ;tm-define
 
-;; Mogan has a built-in macro named `op` whose \newcommand would clash, so the
-;; tree uses the internal name tmopx and the finished text is renamed to \op.
-(define conservative-texmacs->latex-before-op conservative-texmacs->latex)
-
-(define (conservative-texmacs->latex-with-op . args)
-  (string-replace (apply conservative-texmacs->latex-before-op args)
-                  "\\tmopx" "\\op")
-) ;define
-
-(converter texmacs-stree
-  latex-document
-  (:function-with-options conservative-texmacs->latex-with-op)
-  (:option "texmacs->latex:source-tracking" "off")
-  (:option "texmacs->latex:conservative" "on")
-  (:option "texmacs->latex:transparent-source-tracking" "on")
-  (:option "texmacs->latex:attach-tracking-info" "on")
-  (:option "texmacs->latex:replace-style" "on")
-  (:option "texmacs->latex:expand-macros" "on")
-  (:option "texmacs->latex:expand-user-macros" "off")
-  (:option "texmacs->latex:indirect-bib" "off")
-  (:option "texmacs->latex:use-macros" "on")
-  (:option "texmacs->latex:protect-nested-bars" "on")
-  (:option "texmacs->latex:encoding" "UTF-8")
-) ;converter
+(eval (list 'logic-dispatcher 'tmtex-extra-methods%
+            (list 'oper (lambda (l)
+                          (latex-add-extra "amsmath")
+                          ;; a plain name is written as is; tmtex would wrap it in \tmop again
+                          (list 'oper (if (and (string? (car l))
+                                               (list-and (map char-alphabetic?
+                                                              (string->list (car l)))))
+                                          (car l)
+                                          (tmtex (car l))))))))
