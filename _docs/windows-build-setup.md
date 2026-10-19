@@ -23,7 +23,7 @@
 
 ## Local patches (branch dev/200_27/local-fixes on origin/main)
 See `changes/*/dev-notes/` and `changes/unapplied-qt-unicode-key-input/`: amsmath aligned, headless CLI conversion, Qt non-ASCII key input.
-User keyboard config: `user-config/my-init-texmacs.scm` (contains "fuck" test
+User keyboard config: `user-config/moganlab/progs/my-init-texmacs.scm` (contains "fuck" test
 bindings for alpha; clean before using).
 
 

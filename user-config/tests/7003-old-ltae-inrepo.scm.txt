@@ -1,0 +1,77 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; MODULE      : 7003.scm
+;; DESCRIPTION : User-registered one-column table environments (LaTeX round trip)
+;; COPYRIGHT   : (C) 2026
+;;
+;; This software falls under the GNU general public license version 3 or later.
+;; It comes WITHOUT ANY WARRANTY WHATSOEVER. For details, see the file LICENSE
+;; in the root directory or <http://www.gnu.org/licenses/gpl-3.0.html>.
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(import (liii check))
+
+(check-set-mode! 'report-failed)
+
+(load "./TeXmacs/plugins/latex/progs/init-latex.scm")
+(import-from (latex latex-format))
+
+(define bs (string (integer->char 92)))
+
+(define (tex . l) (apply string-append l))
+
+(define env "tbl7003")
+
+(define src
+  (tex bs "begin{document}" bs "begin{" env "}a" bs bs "b+c" bs bs bs "end{" env "}"
+    bs "end{document}"
+  ) ;tex
+) ;define
+
+(define (import-doc s)
+  (tree->stree (latex-document->texmacs s))
+) ;define
+
+(define (contains? t x)
+  (cond ((equal? t x) #t)
+        ((pair? t) (or (contains? (car t) x) (contains? (cdr t) x)))
+        (else #f)
+  ) ;cond
+) ;define
+
+(define (export-doc st)
+  (serialize-latex
+    (texmacs->latex (stree->tree st)
+      '(("texmacs->latex:encoding" . "utf-8"))
+    ) ;texmacs->latex
+  ) ;serialize-latex
+) ;define
+
+(define (test-unregistered)
+  (with d (import-doc (string-append src "%"))
+    (check (contains? d '(next-line)) => #t)
+    (check (contains? d 'table) => #f)
+  ) ;with
+) ;define
+
+(define (test-registered)
+  (latex-register-table-env env "tbl7003pkg")
+  (with d (import-doc src)
+    (check (contains? d `(,(string->symbol env) (table (row (cell "a")) (row (cell "b+c"))
+                                 )))
+           => #t
+    ) ;check
+    (check (contains? d '(tuple "generic" "std-latex" "tbl7003pkg")) => #t)
+    (with e (export-doc `(document (,(string->symbol env) (table (row (cell "a")) (row (cell "b"))))))
+      (check (string-contains? e (tex "begin{" env "}")) => #t)
+      (check (string-contains? e (tex bs bs)) => #t)
+    ) ;with
+  ) ;with
+) ;define
+
+(tm-define (test_7003)
+  (test-unregistered)
+  (test-registered)
+  (check-report)
+) ;tm-define

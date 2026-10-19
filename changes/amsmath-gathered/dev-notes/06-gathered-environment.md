@@ -36,7 +36,7 @@ Before this patch there was no way to get centered rows under one number
 Without a number: use `gather*`.
 
 ## Editing: Alt+Down / Alt+Up (user init, not part of the patch)
-`../../../user-config/my-init-texmacs.scm` binds, in math mode, `A-down` / `A-up`
+`../../../user-config/moganlab/progs/my-init-texmacs.scm` binds, in math mode, `A-down` / `A-up`
 to `user-multiline-equation`:
 - in `equation*` or `equation` -> the display environment stays (numbered or not)
   and its content is wrapped in a `gathered` with a new row below / above;

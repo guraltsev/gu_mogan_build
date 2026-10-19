@@ -62,7 +62,7 @@ patch.
 
 ## Not in these patches
 
-- `user-config/my-init-texmacs.scm` (keybindings: `$`, `$$`, `Alt+Up/Down`) lives in
+- `user-config/moganlab/progs/my-init-texmacs.scm` (keybindings: `$`, `$$`, `Alt+Up/Down`) lives in
   `../user-config/`, not in the Mogan source.
 - `-delete-style-cache` still deletes `__*` files, which never exist (the cache files
   are named by hash). Not fixed.

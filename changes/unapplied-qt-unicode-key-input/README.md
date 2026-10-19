@@ -43,7 +43,7 @@ Built successfully (2026-10-17). To test:
    ```scheme
    (utf8-kbd-map (:mode in-math?) ("α" "<alpha>"))
    ```
-   The repo copy `../../user-config/my-init-texmacs.scm` still has `"alpha" "fuck"`
+   The repo copy `../../user-config/moganlab/progs/my-init-texmacs.scm` still has `"alpha" "fuck"`
    debug bindings; remove them first. Math bindings must be registered after
    `(module-provide '(math math-kbd)) (kbd-flush-pending)`.
 3. Type α on a Greek layout / IME in math mode; expect the alpha symbol.

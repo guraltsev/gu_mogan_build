@@ -19,5 +19,5 @@
   probe scripts instead (the user rejected such a patch-and-restore step).
 - The user prefers concise answers that state clearly what was and was not verified, and corrections of
   earlier claims as soon as they are found. Handoff notes go to `gu_mogan_build/notes/`.
-- The user's own config lives in `gu_mogan_build/user-config/my-init-texmacs.scm` (installed via the link
+- The user's own config lives in `gu_mogan_build/user-config/moganlab/progs/my-init-texmacs.scm` (installed via the link
   `%APPDATA%\moganlab\progs`): `$` / `$$` behaviour, `Alt+Down/Up` multi-line equation, backtick math keys.
