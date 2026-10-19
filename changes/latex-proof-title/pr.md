@@ -30,6 +30,7 @@ with anything. Neither marker survived.
   `\begin{proof}[Title]` directly, or a plain `\begin{proof}` for an empty title (what the editor leaves
   when the title of a proof is made editable). This is the same direction as #2985 / #2990, which fixed the
   `proof` and `proof*` tags but not `render-proof`, so a titled proof still did not round-trip.
+  None of #2985, #2990 or #3052 touches the importer, so the import problem above is not addressed by them.
 - `render-proof` is the tag Mogan itself uses for a proof with its own title (the editor converts
   `proof` into `render-proof` when the title is made editable), so it is the right target for the import.
 - New integration test `TeXmacs/tests/7003.scm` (17 checks: import of titled, plain and nested proofs,
