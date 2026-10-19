@@ -75,3 +75,16 @@
   `array`; keys without one fall through `tmtex-table-apply` to `\begin{<tag>}`. `matrix` and `bmatrix`
   entries were REMOVED so they export as `pmatrix` (renamed in the fallback) and `bmatrix`. Package
   dependency: `(begin-pmatrix/bmatrix/Bmatrix "amsmath")` in `convert-latex-drd.scm`.
+
+## Theorem / proof options (branches pr/latex-proof-title, pr/latex-theorem-option; tests 7003, 7004)
+- Parser: an environment with an optional argument gets its label renamed `name*`; the option is only read when
+  `latex_arity` of `\begin-name` is negative. `\newtheorem`/`\declaretheorem` (parsetex.cpp ~1150) used to
+  reset it to 0, so `\begin{theorem}[Foo]` kept `[Foo]` as text; now -1.
+- `finalize_layout`: `theorem*` -> `theorem` + `<dueto|..>`; `proof*` -> `render-proof|Title` (end marker is plain
+  `proof`, so a stack of "titled" flags pairs them).
+- `latex->texmacs` from Scheme does not give the same tree as the file converter for user-declared theorems
+  (`claim[Bar]` -> `(claim "Bar" ...)`); not investigated.
+- Running a test from a script: `-x "(load \"script.scm\")"` where the script loads the test, calls `(test_NNNN)`
+  inside `catch`, and writes a marker with `string-save`; `check-report` text appears in the console log
+  (`-d` ... `> log 2>&1`). Backslashes in files written through the shell tool lose one level: use the Write tool.
+- A stray MoganSTEM.exe (e.g. a timed-out test) makes the next build fail with "busy"; kill it first.

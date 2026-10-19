@@ -1,0 +1,11 @@
+<TMU|<tuple|1.1.0|2026.3.0>>
+
+<style|<tuple|article|std-latex>>
+
+<\body>
+  Because <math|x>.
+
+  <\proof>
+    Plain.
+  </proof>
+</body>

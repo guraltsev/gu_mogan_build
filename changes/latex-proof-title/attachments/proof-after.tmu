@@ -1,0 +1,13 @@
+<TMU|<tuple|1.1.0|2026.3.0>>
+
+<style|<tuple|article|std-latex>>
+
+<\body>
+  <\render-proof|Proof of Theorem 1>
+    Because <math|x>.
+  </render-proof>
+
+  <\proof>
+    Plain.
+  </proof>
+</body>

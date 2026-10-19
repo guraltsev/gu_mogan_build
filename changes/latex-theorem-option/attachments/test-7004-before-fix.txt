@@ -1,0 +1,3 @@
+89:(contains? t 'dueto) => #f ; *** failed ***
+99:(contains? t "Foo") => #f ; *** failed ***
+134:; *** checks *** : 3 correct, 2 failed.

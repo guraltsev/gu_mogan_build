@@ -1,0 +1,4 @@
+71:(contains? t 'render-proof) => #f ; *** failed ***
+81:(contains? t "Proof of Theorem 1") => #f ; *** failed ***
+95:(contains? t 'render-proof) => #f ; *** failed ***
+109:; *** checks *** : 5 correct, 3 failed.

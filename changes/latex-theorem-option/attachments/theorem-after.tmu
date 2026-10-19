@@ -1,0 +1,13 @@
+<TMU|<tuple|1.1.0|2026.3.0>>
+
+<style|<tuple|article|std-latex>>
+
+<\body>
+  <\hide-preamble>
+    \;
+  </hide-preamble>
+
+  <\theorem>
+    <dueto|Foo>Statement.
+  </theorem>
+</body>
