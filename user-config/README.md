@@ -23,7 +23,9 @@ files go; copy them there and restart Mogan.
   The same file maps `\R \C \Q \Z \N` to the symbols typed as `RR CC QQ ZZ NN` (`<bbb-R>` ...):
   import accepts `\R`, `\mathbb{R}` and `\mathbb R`; export writes `\R` and, only if used,
   `\NewDocumentCommand{\R}{}{\mathbb{R}}` plus `amssymb` in the preamble. More via
-  `(latex-register-symbol-command "R" "<bbb-R>" "R")`.
+  `(latex-register-symbol-command "R" "<bbb-R>" "R")`. `\1` is the double-struck one
+  (`<bbb-1>`, typed `1 1 var var var`), defined as `\mathbbm{1}` with the `bbm` package;
+  `\mathbbm{1}` and `\mathbb{1}` import as the same symbol.
   `\oper[*]{...}` is a synonym of `\operatorname` (defined once in the preamble with
   `\NewDocumentCommand{\oper}{s m}{...}`, starred form for limits). Export renames Mogan's
   `\tmop{...}` to `\oper{...}`, and Mogan's own `oper` macro exports to it as well; import reads

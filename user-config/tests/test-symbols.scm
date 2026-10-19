@@ -49,8 +49,29 @@
     (check (has? (body-of e) (tex bs "R")) => #t)
     (check (has? (body-of e) (tex bs "Q")) => #t)))
 
+;; \1: double-struck one, defined with \mathbbm (package bbm)
+(define (test-one)
+  (for-each
+    (lambda (src) (check (tree-mentions? (import-math src) "<bbb-1>") => #t))
+    (list (tex bs "1") (tex bs "mathbbm{1}") (tex bs "mathbb{1}")))
+  (check (tree-has? (import-math (tex bs "mathds{1}")) "<bbb-1>") => #f) ; other font: untouched
+  (with e (export-math "<bbb-1>+x")
+    (check (has? (body-of e) (tex bs "1")) => #t)
+    (check (has? (body-of e) (tex bs "mathbbm")) => #f)
+    (check (has? (preamble-of e) (tex bs "NewDocumentCommand{" bs "1}{}{" bs "mathbbm{1}}"))
+           => #t)
+    (check (has? (preamble-of e) (tex "% " bs "1: blackboard bold 1 (Mogan 1 1 var var var)"))
+           => #t)
+    (check (has? (preamble-of e) "bbm") => #t)
+    (check (has? e (tex bs "newcommand")) => #f))
+  ;; \1 is not defined unless used
+  (check (has? (export-math "<bbb-R>") (tex "{" bs "1}")) => #f)
+  (with e (export-doc (import-math (tex bs "mathbbm{1}_A")))
+    (check (has? (body-of e) (tex bs "1")) => #t)))
+
 (test-import)
 (test-export)
+(test-one)
 (test-all-letters)
 (test-unused)
 (test-round-trip)

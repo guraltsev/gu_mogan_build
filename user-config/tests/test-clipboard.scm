@@ -20,6 +20,12 @@
     (check (tree-has? d '(R)) => #f)
     (check (tree-has? d '(C)) => #f)))
 
+(define (test-one)
+  (check (tree-mentions? (paste (tex "x+" bs "1")) "<bbb-1>") => #t)
+  (check (tree-mentions? (paste (tex bs "mathbbm{1}")) "<bbb-1>") => #t)
+  (check (has? (copy '(math "<bbb-1>+x")) (tex bs "1")) => #t)
+  (check (has? (copy '(math "<bbb-1>+x")) (tex bs "mathbbm")) => #f))
+
 (define (test-paste-fonts)
   (check (normalize (paste (tex bs "mc{A}+" bs "mb{AB}+" bs "mbf{x}+" bs "mf{g}+" bs "ms{L}")))
          => (normalize (paste (tex bs "mathcal{A}+" bs "mathbb{AB}+" bs "mathbf{x}+"
@@ -59,6 +65,7 @@
     (check (has? s (tex bs "mf{g}")) => #t)))
 
 (test-paste-symbols)
+(test-one)
 (test-paste-fonts)
 (test-paste-oper-lga)
 (test-copy)

@@ -117,19 +117,33 @@
 
 (define latex-symbol-commands (make-ahash-table))   ; "R" -> "<bbb-R>"
 
-(define (latex-register-symbol-command cmd symbol letter)
-  (let ((sym (string->symbol cmd))
-        (key (substring symbol 1 (- (string-length symbol) 1))))
+;; Optional: LaTeX font command (default mathbb; mathbbm for a double-struck 1),
+;; math-font names whose wrapped letter also imports as the symbol, and the keys typed
+;; in Mogan (default: the letter twice).
+(define latex-symbol-font-aliases '())   ; ((font-name letter symbol) ...)
+
+(define (latex-register-symbol-command cmd symbol letter . opt)
+  (let* ((sym (string->symbol cmd))
+         (key (substring symbol 1 (- (string-length symbol) 1)))
+         (font (if (pair? opt) (car opt) 'mathbb))
+         (aliases (if (and (pair? opt) (pair? (cdr opt))) (cadr opt) '()))
+         (typed (if (and (pair? opt) (pair? (cdr opt)) (pair? (cddr opt)))
+                    (caddr opt)
+                    (string-append letter letter))))
     (ahash-set! latex-symbol-commands cmd symbol)
+    (for-each (lambda (f)
+                (set! latex-symbol-font-aliases
+                      (cons (list f letter symbol) latex-symbol-font-aliases)))
+              aliases)
     (eval (list 'logic-table 'latex-special-symbols% (list key (list sym))))
     (eval (list 'smart-table 'latex-texmacs-preamble
                 (list sym (list '!append
                                 (string-append "\\NewDocumentCommand{\\" cmd "}{}{")
-                                (list 'mathbb letter)
+                                (list font letter)
                                 (string-append "} % \\" cmd ": blackboard bold " letter
-                                               " (Mogan " letter letter ")"
+                                               " (Mogan " typed ")"
                                                (string #\newline))))))
-  ) ;let
+  ) ;let*
 ) ;define
 
 (define (drop-symbol-assigns doc)
@@ -141,6 +155,20 @@
 (define (transform-symbol-commands x)
   (cond ((and (pair? x) (symbol? (car x)) (null? (cdr x))
               (ahash-ref latex-symbol-commands (symbol->string (car x))))
+         => (lambda (s) s))
+        ;; \1: a control symbol (non-letter), which the importer returns as ((symbol "1"))
+        ((and (pair? x) (pair? (car x)) (null? (cdr x)) (eq? (caar x) 'symbol)
+              (pair? (cdar x)) (string? (cadar x))
+              (ahash-ref latex-symbol-commands (cadar x)))
+         => (lambda (s) s))
+        ;; \mathbbm{1} (and \mathbb{1}) wrap a plain letter in a font
+        ((and (pair? x) (eq? (car x) 'with) (= (length x) 4)
+              (equal? (cadr x) "math-font") (string? (cadddr x))
+              (let loop ((l latex-symbol-font-aliases))
+                (cond ((null? l) #f)
+                      ((and (equal? (caar l) (caddr x)) (equal? (cadar l) (cadddr x)))
+                       (caddar l))
+                      (else (loop (cdr l))))))
          => (lambda (s) s))
         ((and (pair? x) (eq? (car x) 'hide-preamble) (pair? (cdr x))
               (pair? (cadr x)) (eq? (caadr x) 'document))
@@ -205,6 +233,8 @@
 (latex-register-symbol-command "Q" "<bbb-Q>" "Q")
 (latex-register-symbol-command "Z" "<bbb-Z>" "Z")
 (latex-register-symbol-command "N" "<bbb-N>" "N")
+;; \1: double-struck one; mathbbm (package bbm), as plain \mathbb{1} prints an ordinary 1
+(latex-register-symbol-command "1" "<bbb-1>" "1" 'mathbbm '("Bbb" "Bbb*") "1 1 var var var")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; \oper{...}: operator names. Mogan's exporter writes unknown operator names as
