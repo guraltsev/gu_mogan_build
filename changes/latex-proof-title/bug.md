@@ -66,9 +66,9 @@ The first proof has no `<proof>` wrapper and no title: the text "Proof of Theore
 </body>
 ```
 
-`render-proof` is the macro Mogan's own `proof` and `proof-of` are built on, and it is what the
-exporter already writes for this shape (`tmtex-render-proof` -> `\begin{proof}[...]`), so the title
-replaces the word "Proof" as it does in LaTeX.
+`render-proof` is the macro Mogan's own `proof` and `proof-of` are built on, and it is the tag
+the editor uses for a proof with its own title, so the title replaces the word "Proof" as it does in
+LaTeX.
 
 ## Cause
 
