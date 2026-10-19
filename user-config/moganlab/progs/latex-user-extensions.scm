@@ -152,6 +152,10 @@
          (set! latex-table-macros-used (cons "oper" latex-table-macros-used))
          `(oper ,(list->string (filter (lambda (c) (not (char=? c #\*)))
                                        (string->list (cadr x))))))
+        ;; \mc \mb \mbf \mf \ms: same result as \mathcal \mathbb \mathbf \mathfrak \mathscr
+        ((and (pair? x) (symbol? (car x)) (pair? (cdr x)) (null? (cddr x))
+              (assoc (symbol->string (car x)) math-font-shorthands))
+         => (lambda (row) (math-font-shorthand->tm row (transform-symbol-commands (cadr x)))))
         ((pair? x) (filter (lambda (e) (not (eq? e '%drop)))
                            (map transform-symbol-commands x)))
         (else x)
@@ -206,6 +210,12 @@
   (cond ((and (pair? x) (eq? (car x) 'tmop))
          (latex-add-extra "amsmath")
          (cons 'oper (map rename-tmop (cdr x))))
+        ;; \mathcal -> \mc etc.
+        ((and (pair? x) (symbol? (car x))
+              (assoc (symbol->string (car x)) math-font-shorthand-long))
+         => (lambda (row)
+              (when (caddr row) (latex-add-extra (caddr row)))
+              (cons (string->symbol (cadr row)) (map rename-tmop (cdr x)))))
         ((pair? x) (map rename-tmop x))
         (else x)
   ) ;cond
@@ -225,3 +235,62 @@
                                                               (string->list (car l)))))
                                           (car l)
                                           (tmtex (car l))))))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Math font shorthands: \mc \mb \mbf \mf \ms = \mathcal \mathbb \mathbf \mathfrak \mathscr
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Import: \mc{A} gives what \mathcal{A} gives (<cal-A>, or a math-font with).
+;; Export: \mathcal{A} is written \mc{A}; Mogan's own mc ... ms macros (package
+;;         mathfonts.stem) export the same. Each is defined once in the preamble.
+
+;; short, long, LaTeX package, Mogan math-font (#f: math-bf), symbol prefix (or #f)
+(define math-font-shorthands
+  '(("mc" "mathcal" #f "cal" "cal")
+    ("mb" "mathbb" "amssymb" "Bbb" "bbb")
+    ("mbf" "mathbf" #f #f #f)
+    ("mf" "mathfrak" "amssymb" "Euler" "frak")
+    ("ms" "mathscr" "mathrsfs" "cal*" #f)))
+
+;; (long short package), keyed by the long name for the export rename
+(define math-font-shorthand-long
+  (map (lambda (r) (list (cadr r) (car r) (caddr r))) math-font-shorthands))
+
+(define (math-font-shorthand->tm row arg)
+  (let ((font (cadddr row)) (prefix (car (cddddr row))))
+    (cond ((not font)
+           ;; \mathbf{AB} gives "AB"; the importer's invisible times would show
+           `(math-bf ,(if (string? arg)
+                          (list->string (filter (lambda (c) (not (char=? c #\*)))
+                                                (string->list arg)))
+                          arg)))
+          ((and prefix (string? arg) (= (string-length arg) 1)
+                (char-alphabetic? (string-ref arg 0))
+                ;; \mathcal has no lowercase symbols
+                (or (!= prefix "cal") (char-upper-case? (string-ref arg 0))))
+           (string-append "<" prefix "-" arg ">"))
+          (else `(with "math-font" ,font ,arg)))
+  ) ;let
+) ;define
+
+(for-each
+  (lambda (row)
+    (let* ((short (string->symbol (car row))) (long (cadr row)) (pkg (caddr row)))
+      (eval (list 'smart-table 'latex-texmacs-preamble
+                  (list short
+                        (list '!append
+                              (string-append
+                                "\\NewDocumentCommand{\\" (car row) "}{m}{\\" long "{#1}}"
+                                " % \\" (car row) "{...}: synonym of \\" long
+                                (string #\newline))))))
+      (eval (list 'logic-dispatcher 'tmtex-extra-methods%
+                  (list short
+                        (lambda (l)
+                          (when pkg (latex-add-extra pkg))
+                          (list short (if (and (string? (car l))
+                                               (list-and (map char-alphabetic?
+                                                              (string->list (car l)))))
+                                          (car l)
+                                          (tmtex (car l)))))))))
+  ) ;lambda
+  math-font-shorthands)

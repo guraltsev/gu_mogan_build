@@ -1,0 +1,19 @@
+(document (TeXmacs "1.99.20")
+  (style "source")
+  (body
+    (document
+      (active*
+        (src-title (document (src-package "mathfonts" "1.0")
+                     (src-purpose (document "mc, mb, mbf, mf, ms: short names for the cal, Bbb, bold, Euler fraktur and script math fonts.")
+                     ) ;src-purpose
+                   ) ;document
+        ) ;src-title
+      ) ;active*
+      (assign "mc" (macro "x" (with "math-font" "cal" (arg "x"))))
+      (assign "mb" (macro "x" (with "math-font" "Bbb" (arg "x"))))
+      (assign "mbf" (macro "x" (math-bf (arg "x"))))
+      (assign "mf" (macro "x" (with "math-font" "Euler" (arg "x"))))
+      (assign "ms" (macro "x" (with "math-font" "cal*" (arg "x"))))
+    ) ;document
+  ) ;body
+) ;document

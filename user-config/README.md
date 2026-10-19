@@ -28,7 +28,11 @@ files go; copy them there and restart Mogan.
   `\NewDocumentCommand{\oper}{s m}{...}`, starred form for limits). Export renames Mogan's
   `\tmop{...}` to `\oper{...}`, and Mogan's own `oper` macro exports to it as well; import reads
   `\oper{x}` as `<oper|x>` and adds the `oper` package.
+  `\mc \mb \mbf \mf \ms` are synonyms of `\mathcal \mathbb \mathbf \mathfrak \mathscr`: import
+  gives the same result as the long forms, export writes the short forms, and each one used is
+  defined in the preamble (with a comment, plus its package: amssymb, mathrsfs).
 - `moganlab/packages/oper.stem` - Mogan macro `oper`: upright operator name.
+- `moganlab/packages/mathfonts.stem` - Mogan macros `mc mb mbf mf ms` (cal, Bbb, bold, Euler, cal* fonts).
 - `moganlab/packages/lga.stem` - Mogan macro `lga`: left-aligned one-column table, top/centre/bottom
   baseline from the first argument.
 - `tex/lga.sty` - optional standalone copy of the same definition, for hand-written documents;
