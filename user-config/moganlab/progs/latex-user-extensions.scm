@@ -164,14 +164,27 @@
 
 (define latex-document->texmacs-before-table-macros latex-document->texmacs)
 
-(define (latex-document->texmacs-with-table-macros x . opts)
-  (let ((res (apply latex-document->texmacs-before-table-macros (cons x opts))))
-    (set! latex-table-macros-used '())
-    (stree->tree
-      (add-table-macro-packages
-        (transform-symbol-commands (transform-table-macros (tree->stree res)))))
-  ) ;let
+(define (apply-user-import-passes tree)
+  (set! latex-table-macros-used '())
+  (stree->tree
+    (add-table-macro-packages
+      (transform-symbol-commands (transform-table-macros (tree->stree tree)))))
 ) ;define
+
+(define (latex-document->texmacs-with-table-macros x . opts)
+  (apply-user-import-passes
+    (apply latex-document->texmacs-before-table-macros (cons x opts)))
+) ;define
+
+;; Pasting LaTeX goes through latex-snippet -> latex-tree -> texmacs-tree,
+;; not through the document converter above.
+(define latex->texmacs-before-user-extensions latex->texmacs)
+
+(define (latex->texmacs-with-user-extensions t)
+  (apply-user-import-passes (latex->texmacs-before-user-extensions t))
+) ;define
+
+(converter latex-tree texmacs-tree (:function latex->texmacs-with-user-extensions))
 
 (converter latex-document
   texmacs-tree
@@ -215,15 +228,24 @@
               (assoc (symbol->string (car x)) math-font-shorthand-long))
          => (lambda (row)
               (when (caddr row) (latex-add-extra (caddr row)))
-              (cons (string->symbol (cadr row)) (map rename-tmop (cdr x)))))
+              (let ((short (string->symbol (cadr row)))
+                    (args (map rename-tmop (cdr x))))
+                ;; \operatorname resets the math font, so \mc{\oper{AB}} would come out
+                ;; upright; \oper{\mc{AB}} keeps the font
+                (if (and (pair? args) (null? (cdr args))
+                         (pair? (car args)) (eq? (caar args) 'oper))
+                    (list 'oper (cons short (cdar args)))
+                    (cons short args)))))
         ((pair? x) (map rename-tmop x))
         (else x)
   ) ;cond
 ) ;define
 
-(tm-define (tmtex-postprocess x)
+;; texmacs->latex covers both a whole file and a snippet (copy as LaTeX);
+;; tmtex-postprocess is only called for whole files.
+(tm-define (texmacs->latex x opts)
   (:require #t)
-  (rename-tmop (former x))
+  (rename-tmop (former x opts))
 ) ;tm-define
 
 (eval (list 'logic-dispatcher 'tmtex-extra-methods%

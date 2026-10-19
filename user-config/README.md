@@ -37,6 +37,19 @@ files go; copy them there and restart Mogan.
   baseline from the first argument.
 - `tex/lga.sty` - optional standalone copy of the same definition, for hand-written documents;
   exported files do not need it.
+- `tests/` - headless test suites, one per feature: `test-lga.scm`, `test-symbols.scm`,
+  `test-oper.scm`, `test-mathfonts.scm`, `test-clipboard.scm` (paste and copy of LaTeX snippets);
+  shared code in `helpers.scm`. Each covers import, export, the preamble definitions and comments,
+  that unused commands are not defined, and round trips. Run from PowerShell:
+
+  ```
+  .\tests\run-tests.ps1 -Install     # copy moganlab\* to %APPDATA%\moganlab first, then test
+  .\tests\run-tests.ps1 -Name oper   # one suite; -Exe <path> picks another MoganSTEM.exe
+  ```
+
+  The tests run against the installed config, so use `-Install` after editing files here.
+  The clipboard suite tests the `latex-snippet` converters that copy and paste use; the system
+  clipboard itself cannot be driven headless (`clipboard-set` ends the process).
 - `tests/7003-old-ltae-inrepo.scm.txt` - obsolete test from the first (in-repo, `ltae`) attempt;
   kept for reference, not runnable as is.
 
