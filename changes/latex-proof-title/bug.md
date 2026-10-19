@@ -15,11 +15,11 @@ shown. A plain `\begin{proof} ... \end{proof}` imports correctly.
 
 Mogan STEM 2026.3.8-rc.1 built from `upstream/main` at `af724b028`, Windows 11, release build, headless
 conversion (`MoganSTEM.exe -headless -c in.tex out.tmu`). The behaviour was checked on a build of exactly
-that source, see the attachments.
+that source.
 
 ## Steps to reproduce
 
-Convert `attachments/proof.tex`:
+Convert this file (`proof.tex`):
 
 ```latex
 \documentclass{article}
@@ -37,9 +37,13 @@ Plain.
 \end{document}
 ```
 
-## Actual result (`attachments/proof-before.tmu`)
+## Actual result (complete output file `proof.tmu`)
 
 ```
+<TMU|<tuple|1.1.0|2026.3.0>>
+
+<style|<tuple|article|std-latex>>
+
 <\body>
   Because <math|x>.
 
@@ -111,7 +115,3 @@ Untitled proofs do not go through the `proof*` rename and so are unaffected, whi
   `tmtex-render-proof` writes a custom `proof*` environment
   (`\begin{proof*}{Title}` plus a preamble `\newenvironment{proof*}[1]{\begin{proof}[{#1}]}...`) rather than
   `\begin{proof}[Title]`. This is the same kind of export problem as #2985, for the titled case.
-
-## Attachments
-
-In `attachments/`: `proof.tex` (input) and `proof-before.tmu` (actual output on `upstream/main`).

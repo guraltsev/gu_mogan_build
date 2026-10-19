@@ -15,12 +15,12 @@ definition of `theorem` accepts an optional argument.
 ## Environment
 
 Mogan STEM 2026.3.8-rc.1 built from `upstream/main` at `af724b028`, Windows 11, release build, headless
-conversion (`MoganSTEM.exe -headless -c in.tex out.tmu`). The unfixed behaviour was produced by a build
+conversion (`MoganSTEM.exe -headless -c in.tex out.tmu`). The behaviour was produced by a build
 of exactly that source.
 
 ## Steps to reproduce
 
-Convert `attachments/theorem.tex`:
+Convert this file (`theorem.tex`):
 
 ```latex
 \documentclass{article}
@@ -35,15 +35,27 @@ Statement.
 \end{document}
 ```
 
-## Actual result (`attachments/theorem-before.tmu`)
+## Actual result (complete output file `theorem.tmu`)
 
 ```
-<\theorem>
-  [Foo] Statement.
-</theorem>
+<TMU|<tuple|1.1.0|2026.3.0>>
+
+<style|<tuple|article|std-latex>>
+
+<\body>
+  <\hide-preamble>
+    \;
+  </hide-preamble>
+
+  <\theorem>
+    [Foo] Statement.
+  </theorem>
+</body>
 ```
 
-## Expected result (`attachments/theorem-after.tmu`)
+## Expected result
+
+The option becomes the theorem name:
 
 ```
 <\theorem>
@@ -58,13 +70,3 @@ Statement.
 built-in entry for `theorem` (and the other standard names), which has the "optional argument allowed"
 arity. The argument parser therefore never looks for `[...]` after `\begin{theorem}`. The importer's
 later step that turns `theorem*` into `<dueto|...>` is correct but never receives the option.
-
-## Fix
-
-Register the begin command with arity -1 (optional argument, no required ones). The `\end-` entries are
-unchanged.
-
-## Attachments
-
-All in `attachments/`: `theorem.tex`, `theorem-before.tmu`, `theorem-after.tmu`,
-`test-7004-before-fix.txt` (`3 correct, 2 failed`), `test-7004-after-fix.txt` (`5 correct, 0 failed`).

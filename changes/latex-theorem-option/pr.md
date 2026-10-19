@@ -25,12 +25,74 @@ integration test `TeXmacs/tests/7004.scm` (5 checks).
 ## Verified (Windows, release build, headless)
 
 - `TeXmacs/tests/7004.scm`: **2 of 5 checks fail on unmodified `upstream/main`, 5 of 5 pass with the
-  change** (`attachments/test-7004-*.txt`). It covers a named theorem and an unnamed one (which must not
+  change** (console output below). It covers a named theorem and an unnamed one (which must not
   get a `dueto`).
-- Converting `attachments/theorem.tex`: before `[Foo] Statement.`, after `<dueto|Foo>Statement.`
-  (`theorem-before.tmu`, `theorem-after.tmu`).
+- Converting `theorem.tex` (shown below): before `[Foo] Statement.`, after `<dueto|Foo>Statement.`.
 - A theorem type declared only by `\newtheorem{claim}{Claim}` converts to `<dueto|Bar>` in the file
   converter as well.
+
+## Input and outputs
+
+Input (`theorem.tex`):
+
+```latex
+\documentclass{article}
+\usepackage{amsthm}
+\newtheorem{theorem}{Theorem}
+\begin{document}
+
+\begin{theorem}[Foo]
+Statement.
+\end{theorem}
+
+\end{document}
+```
+
+Output of `MoganSTEM.exe -headless -c theorem.tex theorem.tmu` on unmodified `upstream/main`:
+
+```
+<TMU|<tuple|1.1.0|2026.3.0>>
+
+<style|<tuple|article|std-latex>>
+
+<\body>
+  <\hide-preamble>
+    \;
+  </hide-preamble>
+
+  <\theorem>
+    [Foo] Statement.
+  </theorem>
+</body>
+```
+
+Output with this change:
+
+```
+<TMU|<tuple|1.1.0|2026.3.0>>
+
+<style|<tuple|article|std-latex>>
+
+<\body>
+  <\hide-preamble>
+    \;
+  </hide-preamble>
+
+  <\theorem>
+    <dueto|Foo>Statement.
+  </theorem>
+</body>
+```
+
+Test output, unmodified `upstream/main` (the two failing checks) and with this change:
+
+```
+(contains? t 'dueto) => #f ; *** failed ***
+(contains? t "Foo") => #f ; *** failed ***
+; *** checks *** : 3 correct, 2 failed.
+
+; *** checks *** : 5 correct, 0 failed.
+```
 
 ## Not checked
 

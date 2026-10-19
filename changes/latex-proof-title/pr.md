@@ -12,8 +12,58 @@ plain paragraph. A proof without a title imported correctly. Separately, a title
 exported as a custom `proof*` environment rather than `\begin{proof}[Title]`, so even with the import
 repaired the round trip would not have produced the original LaTeX.
 
-Reproduction input and outputs are in the `attachments/` folder of the bug report (`proof.tex`,
-`proof-before.tmu`, `proof-after.tmu`).
+Input used (`proof.tex`):
+
+```latex
+\documentclass{article}
+\usepackage{amsthm}
+\begin{document}
+
+\begin{proof}[Proof of Theorem 1]
+Because $x$.
+\end{proof}
+
+\begin{proof}
+Plain.
+\end{proof}
+
+\end{document}
+```
+
+Output of `MoganSTEM.exe -headless -c proof.tex proof.tmu` on unmodified `upstream/main` (the titled proof is
+gone):
+
+```
+<TMU|<tuple|1.1.0|2026.3.0>>
+
+<style|<tuple|article|std-latex>>
+
+<\body>
+  Because <math|x>.
+
+  <\proof>
+    Plain.
+  </proof>
+</body>
+```
+
+Output with this change (title and environment kept):
+
+```
+<TMU|<tuple|1.1.0|2026.3.0>>
+
+<style|<tuple|article|std-latex>>
+
+<\body>
+  <\render-proof|Proof of Theorem 1>
+    Because <math|x>.
+  </render-proof>
+
+  <\proof>
+    Plain.
+  </proof>
+</body>
+```
 
 ## How the importer works here (background)
 
@@ -83,9 +133,8 @@ LaTeX proof and exporting the result gives `\begin{proof}[Proof of Theorem 1]` w
 ## Verified (Windows, release build, headless)
 
 - `TeXmacs/tests/7003.scm` against unmodified `upstream/main`: the first 8 checks (import only) give
-  `5 correct, 3 failed`; with the change all 17 checks pass (`attachments/test-7003-*.txt`).
-- Converting `proof.tex` with `-headless -c`: before `proof-before.tmu` (titled proof gone), after
-  `proof-after.tmu` (`<\render-proof|Proof of Theorem 1>`), the plain proof identical in both.
+  `5 correct, 3 failed`; with the change all 17 checks pass (console output of the test run below).
+- Converting `proof.tex` with `-headless -c`: outputs shown above; the plain proof is identical in both.
 
 ## Not checked
 
@@ -98,6 +147,26 @@ LaTeX proof and exporting the result gives `\begin{proof}[Proof of Theorem 1]` w
   step stopped writing output in my environment, so the round trip is covered by the Scheme test only.
 - macOS and Linux (all work was on Windows 11); the test was run by a hand-made headless command, not by
   `xmake r 7003`.
+
+## Test output
+
+Unmodified `upstream/main` (import checks only, the first 8 of today's 17):
+
+```
+(contains? t 'render-proof) => #f ; *** failed ***
+; expected result: #t
+(contains? t "Proof of Theorem 1") => #f ; *** failed ***
+; expected result: #t
+(contains? t 'render-proof) => #f ; *** failed ***
+; expected result: #t
+; *** checks *** : 5 correct, 3 failed.
+```
+
+With this change:
+
+```
+; *** checks *** : 17 correct, 0 failed.
+```
 
 ## How this fix was made
 
