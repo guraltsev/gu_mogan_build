@@ -112,7 +112,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (latex-register-symbol-command "R" "<bbb-R>" "R")
 ;; Export: the symbol becomes \R, and (only when it occurs) the preamble gets
-;;         \newcommand{\R}{\mathbb{R}}. Import: \R, \mathbb{R} and \mathbb R
+;;         \NewDocumentCommand\R{}{\mathbb{R}}. Import: \R, \mathbb{R} and \mathbb R
 ;;         (the latter two are already native) all give <bbb-R>.
 
 (define latex-symbol-commands (make-ahash-table))   ; "R" -> "<bbb-R>"
@@ -124,7 +124,7 @@
     (eval (list 'logic-table 'latex-special-symbols% (list key (list sym))))
     (eval (list 'smart-table 'latex-texmacs-preamble
                 (list sym (list '!append
-                                (string-append "\\newcommand{\\" cmd "}{")
+                                (string-append "\\NewDocumentCommand\\" cmd "{}{")
                                 (list 'mathbb letter)
                                 (string-append "}" (string #\newline))))))
   ) ;let
