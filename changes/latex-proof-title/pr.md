@@ -20,14 +20,14 @@ with anything. Neither marker survived.
 ## Change
 
 - A titled proof is emitted as `<\render-proof|Title> ... </render-proof>`. This is the macro the standard
-  `proof` and `proof-of` are built on, and the one the exporter already uses for this shape, so the title
+  `proof` and `proof-of` are built on, and the tag the editor uses for a proof with its own title, so the title
   replaces the word "Proof" instead of being appended to it.
 - Because the end marker has no option, `finalize_layout` keeps a small stack recording whether each open
   proof was titled, and closes it with `render-proof` or `proof` accordingly. Untitled and nested proofs
   behave as before.
 - Export (second commit): `tmtex-render-proof` in `convert-latex-tmtex.scm` wrote a custom `proof*`
-  environment, defined in the preamble as a wrapper around `egin{proof}[...]`. It now writes
-  `egin{proof}[Title]` directly, or a plain `egin{proof}` for an empty title (what the editor leaves
+  environment, defined in the preamble as a wrapper around `\begin{proof}[...]`. It now writes
+  `\begin{proof}[Title]` directly, or a plain `\begin{proof}` for an empty title (what the editor leaves
   when the title of a proof is made editable). This is the same direction as #2985 / #2990, which fixed the
   `proof` and `proof*` tags but not `render-proof`, so a titled proof still did not round-trip.
 - `render-proof` is the tag Mogan itself uses for a proof with its own title (the editor converts
@@ -41,9 +41,9 @@ with anything. Neither marker survived.
   changes** (`attachments/test-7003-*.txt`).
 - Converting `attachments/proof.tex`: output before `attachments/proof-before.tmu`, after
   `attachments/proof-after.tmu`.
-- Exporting the imported document back to LaTeX produced `\begin{proof*}{Proof of Theorem 1} ... \end{proof*}`
-  with a generated `\newenvironment{proof*}[1]{\begin{proof}[{#1}]}{\end{proof}}`, i.e. it is a valid
-  round trip through the exporter's existing path.
+- The import-then-export check in the test gives `\begin{proof}[Proof of Theorem 1]` with no `proof*` and
+  no `newenvironment`. Before the export change the same document came out as `\begin{proof*}{...}` plus a
+  generated wrapper environment.
 
 ## Not checked
 
