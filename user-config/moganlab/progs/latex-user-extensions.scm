@@ -107,12 +107,57 @@
   ) ;let
 ) ;define
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Symbol commands: \R \C \Q \Z \N <-> <bbb-R> ... (the symbols typed as RR, CC, ...)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (latex-register-symbol-command "R" "<bbb-R>" "R")
+;; Export: the symbol becomes \R, and (only when it occurs) the preamble gets
+;;         \providecommand{\R}{\mathbb{R}}. Import: \R, \mathbb{R} and \mathbb R
+;;         (the latter two are already native) all give <bbb-R>.
+
+(define latex-symbol-commands (make-ahash-table))   ; "R" -> "<bbb-R>"
+
+(define (latex-register-symbol-command cmd symbol letter)
+  (let ((sym (string->symbol cmd))
+        (key (substring symbol 1 (- (string-length symbol) 1))))
+    (ahash-set! latex-symbol-commands cmd symbol)
+    (eval (list 'logic-table 'latex-special-symbols% (list key (list sym))))
+    (eval (list 'smart-table 'latex-texmacs-preamble
+                (list sym (list '!append
+                                (string-append "\\providecommand{\\" cmd "}{")
+                                (list 'mathbb letter)
+                                (string-append "}" (string #\newline))))))
+  ) ;let
+) ;define
+
+(define (drop-symbol-assigns doc)
+  (filter (lambda (e)
+            (not (and (pair? e) (eq? (car e) 'assign) (pair? (cdr e))
+                      (string? (cadr e)) (ahash-ref latex-symbol-commands (cadr e)))))
+          doc))
+
+(define (transform-symbol-commands x)
+  (cond ((and (pair? x) (symbol? (car x)) (null? (cdr x))
+              (ahash-ref latex-symbol-commands (symbol->string (car x))))
+         => (lambda (s) s))
+        ((and (pair? x) (eq? (car x) 'hide-preamble) (pair? (cdr x))
+              (pair? (cadr x)) (eq? (caadr x) 'document))
+         (let ((rest (drop-symbol-assigns (cdadr x))))
+           (if (null? rest) '%drop `(hide-preamble (document ,@rest)))))
+        ((pair? x) (filter (lambda (e) (not (eq? e '%drop)))
+                           (map transform-symbol-commands x)))
+        (else x)
+  ) ;cond
+) ;define
+
 (define latex-document->texmacs-before-table-macros latex-document->texmacs)
 
 (define (latex-document->texmacs-with-table-macros x . opts)
   (let ((res (apply latex-document->texmacs-before-table-macros (cons x opts))))
     (set! latex-table-macros-used '())
-    (stree->tree (add-table-macro-packages (transform-table-macros (tree->stree res))))
+    (stree->tree
+      (transform-symbol-commands
+        (add-table-macro-packages (transform-table-macros (tree->stree res)))))
   ) ;let
 ) ;define
 
@@ -129,3 +174,9 @@
 (latex-register-table-macro "lga" "lga" "t"
   "\\ProvideDocumentCommand\\lga{O{t} m}{\\begin{lgathered}[#1]#2\\end{lgathered}}"
   "mathtools")
+
+(latex-register-symbol-command "R" "<bbb-R>" "R")
+(latex-register-symbol-command "C" "<bbb-C>" "C")
+(latex-register-symbol-command "Q" "<bbb-Q>" "Q")
+(latex-register-symbol-command "Z" "<bbb-Z>" "Z")
+(latex-register-symbol-command "N" "<bbb-N>" "N")

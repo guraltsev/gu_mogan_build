@@ -13,13 +13,17 @@ files go; copy them there and restart Mogan.
 
 - `moganlab/progs/my-init-texmacs.scm` - user init: keyboard bindings (`$`, `$$`, Alt+Up/Down,
   backtick math keys, Alt+T inserts `lga`) and a `(load ...)` of the table-macro registry.
-- `moganlab/progs/latex-table-macros.scm` - LaTeX import/export for one-column table macros, no
+- `moganlab/progs/latex-user-extensions.scm` - LaTeX import/export extensions (one-column table macros), no
   Mogan source changes. Register more with
   `(latex-register-table-macro "name" "style-package" "default-option" "preamble" "latex-pkg" ...)`
   at its end. Importing `\name[o]{rows separated by row breaks}` gives `(name "o" (table ...))`;
   export writes `\name[o]{...}` (option omitted at the default) and injects the preamble text
   and `\usepackage` lines into the exported file, so no `.sty` is needed. Without a preamble
   argument it adds `\usepackage{name}` instead.
+  The same file maps `\R \C \Q \Z \N` to the symbols typed as `RR CC QQ ZZ NN` (`<bbb-R>` ...):
+  import accepts `\R`, `\mathbb{R}` and `\mathbb R`; export writes `\R` and, only if used,
+  `\providecommand{\R}{\mathbb{R}}` plus `amssymb` in the preamble. More via
+  `(latex-register-symbol-command "R" "<bbb-R>" "R")`.
 - `moganlab/packages/lga.stem` - Mogan macro `lga`: left-aligned one-column table, top/centre/bottom
   baseline from the first argument.
 - `tex/lga.sty` - optional standalone copy of the same definition, for hand-written documents;

@@ -188,6 +188,6 @@
         ("zeta" "<zeta>")
 )
 
-;; LaTeX table macros (lga) (see latex-table-macros.scm)
-(load (url->system (url-unix "$TEXMACS_HOME_PATH/progs" "latex-table-macros.scm")))
+;; LaTeX table macros (lga) (see latex-user-extensions.scm)
+(load (url->system (url-unix "$TEXMACS_HOME_PATH/progs" "latex-user-extensions.scm")))
 
