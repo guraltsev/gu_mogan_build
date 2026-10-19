@@ -1,0 +1,32 @@
+From c18646126455e7f1ccf47a5f74bed675b0b82f31 Mon Sep 17 00:00:00 2001
+From: Gennady Uraltsev <gennady.uraltsev@gmail.com>
+Date: Sat, 17 Oct 2026 21:01:38 -0500
+Subject: [PATCH] Import \left\| as a double bar
+
+The label \| lost its backslash in the \left/\right branch and became a
+single bar, unlike \Vert. Map it to || first.
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+---
+ src/Plugins/Tex/fromtex.cpp | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/Plugins/Tex/fromtex.cpp b/src/Plugins/Tex/fromtex.cpp
+index 06709c6e3..7c017c848 100644
+--- a/src/Plugins/Tex/fromtex.cpp
++++ b/src/Plugins/Tex/fromtex.cpp
+@@ -2447,7 +2447,8 @@ latex_command_to_tree (tree t) {
+     string s;
+     if (is_atomic (t[1])) s= t[1]->label;
+     else s= t[1][0]->label;
+-    if ((N (s) > 1) && (s[0] == '\\')) s= s (1, N (s));
++    if (s == "\\|") s= "||";
++    else if ((N (s) > 1) && (s[0] == '\\')) s= s (1, N (s));
+     if (s == "vert" || s == "arrowvert") s= "|";
+     if (s == "Vert" || s == "Arrowvert") s= "||";
+     if (s == "lbrace") s= "{";
+
+base-commit: c68a494fc6014f6ea76aae30fcfaa8bc3136bbcc
+-- 
+2.55.0.windows.2
+

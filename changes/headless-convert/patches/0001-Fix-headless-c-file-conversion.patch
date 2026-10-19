@@ -1,0 +1,78 @@
+From e7701fe3fb7f5b085cb6832ae047c6710fb707f2 Mon Sep 17 00:00:00 2001
+From: Gennady Uraltsev <gennady.uraltsev@gmail.com>
+Date: Sat, 17 Oct 2026 19:40:21 -0500
+Subject: [PATCH] Fix headless -c file conversion
+
+MoganSTEM -headless -c <in> <out> had two problems:
+
+- In headless mode there is no active view, so (load-buffer ...) followed by
+  (export-buffer ...) depends on current-buffer and can fail or export the
+  wrong buffer.  Load and export the buffers addressed by the input and output
+  URLs explicitly, initialising the plugins of both formats.  The pdf case keeps
+  its dedicated branch (screens are expanded into slides).
+
+- The format of the output file was looked up with url-format before any plugin
+  was loaded.  The latex format is only registered once its plugin is
+  initialised, and the output file normally does not exist yet, so the answer
+  was "generic" and the export wrote the plain text only (no preamble, no
+  equations).  Force the lazy plugins first and take the target format from the
+  file suffix.
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+---
+ src/System/Boot/init_texmacs.cpp | 32 ++++++++++++++++++++++++++------
+ 1 file changed, 26 insertions(+), 6 deletions(-)
+
+diff --git a/src/System/Boot/init_texmacs.cpp b/src/System/Boot/init_texmacs.cpp
+index a93fbe47e..ea6293f6c 100644
+--- a/src/System/Boot/init_texmacs.cpp
++++ b/src/System/Boot/init_texmacs.cpp
+@@ -823,17 +823,37 @@ TeXmacs_main (int argc, char** argv) {
+                           scm_quote (as_string (out)) * "))";
+           }
+           else {
+-            // Default conversion: load the input buffer, then export
+-            my_init_cmds= my_init_cmds * " " * "(load-buffer " *
+-                          scm_quote (as_string (in)) * " :strict) ";
+             if (out_suffix == "pdf") {
+               // pdf export additionally expands screens into slides
+-              my_init_cmds= my_init_cmds * "(export-buffer-to-pdf " *
++              my_init_cmds= my_init_cmds * " (load-buffer " *
++                            scm_quote (as_string (in)) * " :strict) " *
++                            "(export-buffer-to-pdf " *
+                             scm_quote (as_string (out)) * ")";
+             }
+             else {
+-              my_init_cmds= my_init_cmds * "(export-buffer " *
+-                            scm_quote (as_string (out)) * ")";
++              // In headless mode there is no active view, so export-buffer
++              // cannot safely use current-buffer after load-buffer.  Load and
++              // export the buffer addressed by the input URL explicitly.
++              // Formats such as latex are only registered once their plugin is
++              // loaded, and the output file usually does not exist yet, so
++              // force the plugins first and take the target format from the
++              // suffix; url-format would answer "generic" and drop the markup.
++              my_init_cmds=
++                  my_init_cmds * " " *
++                  "(let* ((dummy (lazy-plugin-force)) (source (system->url " *
++                  scm_quote (as_string (in)) * ")) " *
++                  "       (target (system->url " * scm_quote (as_string (out)) *
++                  ")) " * "       (source-format (url-format source)) " *
++                  "       (target-format (format-from-suffix (url-suffix "
++                  "target)))) " *
++                  "  (plugin-initialize (string->symbol source-format)) " *
++                  "  (plugin-initialize (string->symbol target-format)) " *
++                  "  (if (buffer-load source) " *
++                  "      (display* \"TeXmacs] Could not load \" " *
++                  "(url->system source) \"\\n\") " *
++                  "      (when (buffer-export source target target-format) " *
++                  "        (display* \"TeXmacs] Could not export \" " *
++                  "(url->system target) \"\\n\"))))";
+             }
+           }
+           // -c 默认隐含 -q：转换完成后自动退出
+
+base-commit: c68a494fc6014f6ea76aae30fcfaa8bc3136bbcc
+-- 
+2.55.0.windows.2
+

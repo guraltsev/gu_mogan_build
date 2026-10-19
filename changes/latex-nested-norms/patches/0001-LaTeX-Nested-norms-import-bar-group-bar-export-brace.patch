@@ -1,0 +1,229 @@
+From 92a7ac6e0493e7282a0e6531ae2e8f5da0d9cb9e Mon Sep 17 00:00:00 2001
+From: Gennady Uraltsev <gennady.uraltsev@gmail.com>
+Date: Sat, 17 Oct 2026 20:53:38 -0500
+Subject: [PATCH] [LaTeX] Nested norms: import bar{group}bar, export braces
+
+The importer reads \|{...}\| as a norm containing the group instead of
+pairing the nearest bars. The exporter wraps the body of a bar pair that
+contains another pair of the same bar in braces (option
+texmacs->latex:protect-nested-bars, default on).
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+---
+ .../latex/progs/latex/convert-latex-tmtex.scm | 50 ++++++++++++++-
+ .../latex/progs/latex/latex-format.scm        |  2 +
+ TeXmacs/progs/kernel/texmacs/pref-keys.scm    |  3 +
+ .../texmacs/menus/preferences-widgets.scm     |  6 ++
+ src/Plugins/Tex/fromtex.cpp                   | 61 +++++++++++++++++++
+ 5 files changed, 121 insertions(+), 1 deletion(-)
+
+diff --git a/TeXmacs/plugins/latex/progs/latex/convert-latex-tmtex.scm b/TeXmacs/plugins/latex/progs/latex/convert-latex-tmtex.scm
+index 55350bb21..ccdc7ab35 100644
+--- a/TeXmacs/plugins/latex/progs/latex/convert-latex-tmtex.scm
++++ b/TeXmacs/plugins/latex/progs/latex/convert-latex-tmtex.scm
+@@ -1563,6 +1563,48 @@
+ ;; Mathematics
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ 
++;; Nested pairs of the same bar are ambiguous in LaTeX: \|\|f\|_q\|_p is read as
++;; two empty-looking pairs, not as a norm of a norm.  Wrap the content of the
++;; outer pair in a brace group: \|{\|f\|_q}\|_p.
++
++(define (bar-delimiter? s)
++  (and (string? s) (in? s '("|" "||" "<||>")))
++) ;define
++
++(define (contains-around-of? t open)
++  (cond ((not (pair? t)) #f)
++        ((and (func? t 'around) (>= (length t) 2) (== (cadr t) open)) #t)
++        (else (list-or (map (cut contains-around-of? <> open) (cdr t))))
++  ) ;cond
++) ;define
++
++(define (tmtex-brace-group s l)
++  (list '!group (tmtex (car l)))
++) ;define
++
++(define (protect-around x)
++  (if (and (func? x 'around)
++        (== (length x) 4)
++        (bar-delimiter? (cadr x))
++        (== (cadr x) (cadddr x))
++        (contains-around-of? (caddr x) (cadr x))
++      ) ;and
++    `(around ,(cadr x) (tmtex-brace-group ,(caddr x)) ,(cadddr x))
++    x
++  ) ;if
++) ;define
++
++;; Must run before tmtm-match-brackets, which turns every around into plain
++;; delimiter symbols and so loses the structure.
++(tm-define (tmtex-protect-nested-bars x)
++  (cond ((nlist? x) x)
++        ((null? x) x)
++        (else
++          (protect-around (cons (car x) (map tmtex-protect-nested-bars (cdr x))))
++        ) ;else
++  ) ;cond
++) ;tm-define
++
+ (define (convert-around x)
+   (with d (downgrade-brackets x) (tmtex-concat (if (pair? d) (cdr d) (list d))))
+ ) ;define
+@@ -4413,6 +4455,7 @@
+  (math-and (,tmtex-mathbin 1))
+  (math-not (,tmtex-mathord 1))
+  (math-relation (,tmtex-mathrel 1))
++ (tmtex-brace-group (,tmtex-brace-group 1))
+  (math-union (,tmtex-mathbin 1))
+  (math-intersection (,tmtex-mathbin 1))
+  (math-exclude (,tmtex-mathbin 1))
+@@ -4876,7 +4919,12 @@
+         result
+       ) ;with
+     ) ;let*
+-    (let* ((x2 (tree->stree (tmtm-eqnumber->nonumber (stree->tree x))))
++    (let* ((x1 (if (!= (assoc-ref opts "texmacs->latex:protect-nested-bars") "off")
++                 (tmtex-protect-nested-bars x)
++                 x
++               ) ;if
++           ) ;x1
++           (x2 (tree->stree (tmtm-eqnumber->nonumber (stree->tree x1))))
+            (x3 (tmtm-match-brackets x2))
+           ) ;
+       (tmtex-initialize opts)
+diff --git a/TeXmacs/plugins/latex/progs/latex/latex-format.scm b/TeXmacs/plugins/latex/progs/latex/latex-format.scm
+index 985d88585..9996b4d74 100644
+--- a/TeXmacs/plugins/latex/progs/latex/latex-format.scm
++++ b/TeXmacs/plugins/latex/progs/latex/latex-format.scm
+@@ -194,6 +194,7 @@
+   (:option "texmacs->latex:expand-user-macros" "off")
+   (:option "texmacs->latex:indirect-bib" "off")
+   (:option "texmacs->latex:use-macros" "off")
++  (:option "texmacs->latex:protect-nested-bars" "on")
+   (:option "texmacs->latex:encoding" "UTF-8")
+ ) ;converter
+ 
+@@ -218,6 +219,7 @@
+   (:option "texmacs->latex:expand-user-macros" "off")
+   (:option "texmacs->latex:indirect-bib" "off")
+   (:option "texmacs->latex:use-macros" "on")
++  (:option "texmacs->latex:protect-nested-bars" "on")
+   (:option "texmacs->latex:encoding" "UTF-8")
+ ) ;converter
+ 
+diff --git a/TeXmacs/progs/kernel/texmacs/pref-keys.scm b/TeXmacs/progs/kernel/texmacs/pref-keys.scm
+index e8db3fc5c..7470a2e95 100644
+--- a/TeXmacs/progs/kernel/texmacs/pref-keys.scm
++++ b/TeXmacs/progs/kernel/texmacs/pref-keys.scm
+@@ -159,6 +159,9 @@
+ ) ;define-public
+ (define-public (pref-convert-latex-indirect-bib) "texmacs->latex:indirect-bib")
+ (define-public (pref-convert-latex-use-macros) "texmacs->latex:use-macros")
++(define-public (pref-convert-latex-protect-nested-bars)
++  "texmacs->latex:protect-nested-bars"
++) ;define-public
+ (define-public (pref-convert-latex-encoding) "texmacs->latex:encoding")
+ (define-public (pref-convert-latex-attach-tracking-info)
+   "texmacs->latex:attach-tracking-info"
+diff --git a/TeXmacs/progs/texmacs/menus/preferences-widgets.scm b/TeXmacs/progs/texmacs/menus/preferences-widgets.scm
+index 151748889..4b685a1bb 100644
+--- a/TeXmacs/progs/texmacs/menus/preferences-widgets.scm
++++ b/TeXmacs/progs/texmacs/menus/preferences-widgets.scm
+@@ -752,6 +752,12 @@
+       '()
+       #f
+     ) ;list
++    (list (pref-convert-latex-protect-nested-bars)
++      "Group nested norms and absolute values with braces"
++      '()
++      '()
++      #f
++    ) ;list
+     (list (pref-convert-latex-encoding)
+       "Character encoding"
+       '("utf-8" "cork")
+diff --git a/src/Plugins/Tex/fromtex.cpp b/src/Plugins/Tex/fromtex.cpp
+index 06709c6e3..72fb6ff81 100644
+--- a/src/Plugins/Tex/fromtex.cpp
++++ b/src/Plugins/Tex/fromtex.cpp
+@@ -1222,6 +1222,46 @@ latex_key_arg (tree t) {
+   return r;
+ }
+ 
++static bool
++is_bar_token (tree t) {
++  return is_tuple (t, "\\|", 0) || is_tuple (t, "\\Vert", 0) ||
++         is_tuple (t, "\\vert", 0) || t == "|";
++}
++
++static int
++skip_math_spaces (tree t, int k) {
++  while (k < N (t) && t[k] == " ")
++    k++;
++  return k;
++}
++
++/**
++ * @brief 识别数学模式下 `<bar> { ... } <same bar>` 的写法。
++ * @param t 待转换的 LaTeX 并列树
++ * @param i 起始竖线的位置
++ * @param group_begin 括号组起始标记 \begingroup 的位置
++ * @param group_end 括号组结束标记 \endgroup 的位置
++ * @param close 结尾竖线的位置
++ * @note 范数和绝对值的嵌套如 \|\|f\|\| 有歧义，花括号给出了明确的配对。
++ */
++static bool
++match_braced_bar_pair (tree t, int i, int& group_begin, int& group_end,
++                       int& close) {
++  int n      = N (t);
++  group_begin= skip_math_spaces (t, i + 1);
++  if (group_begin >= n || !is_tuple (t[group_begin], "\\begingroup", 0))
++    return false;
++  int depth= 1, k= group_begin + 1;
++  for (; k < n && depth > 0; k++) {
++    if (is_tuple (t[k], "\\begingroup", 0)) depth++;
++    else if (is_tuple (t[k], "\\endgroup", 0)) depth--;
++  }
++  if (depth != 0) return false;
++  group_end= k - 1;
++  close    = skip_math_spaces (t, k);
++  return close < n && t[close] == t[i];
++}
++
+ tree
+ latex_concat_to_tree (tree t, bool& new_flag) {
+   int  i, n= N (t);
+@@ -1254,6 +1294,27 @@ latex_concat_to_tree (tree t, bool& new_flag) {
+       continue;
+     }
+ 
++    if (command_type["!mode"] == "math" && is_bar_token (t[i])) {
++      int group_begin, group_end, close;
++      if (match_braced_bar_pair (t, i, group_begin, group_end, close)) {
++        tree open= l2e (t[i]);
++        if (is_atomic (open)) {
++          // 保持嵌套结构：组内的竖线只在组内配对
++          tree inner (CONCAT);
++          for (int k= group_begin + 1; k < group_end; k++)
++            inner << t[k];
++          bool inner_flag= false;
++          tree body      = latex_concat_to_tree (inner, inner_flag);
++          // 嵌套后的组内容不会被后续的整体括号匹配处理，这里先在组内配对
++          body= upgrade_brackets (body, "math");
++          r << tree (AROUND, copy (open), body, copy (open));
++          new_flag= false;
++          i       = close;
++          continue;
++        }
++      }
++    }
++
+     bool operator_flag= is_tuple (t[i]) && (N (t[i]) == 1) &&
+                         (latex_type (t[i][0]->label) == "operator");
+     bool cc_flag= is_concat (t[i]);
+
+base-commit: c68a494fc6014f6ea76aae30fcfaa8bc3136bbcc
+-- 
+2.55.0.windows.2
+

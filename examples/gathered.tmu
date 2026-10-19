@@ -1,0 +1,16 @@
+<TMU|<tuple|1.1.0|2026.3.0>>
+
+<style|<tuple|generic|number-europe|preview-ref>>
+
+<\body>
+  <\equation>
+    <gathered|<tformat|<table|<row|<cell|1+1=2>>|<row|<cell|2+2=4>>>>>
+  </equation>
+</body>
+
+<\initial>
+  <\collection>
+    <associate|page-screen-margin|false>
+    <associate|stem-doc-id|58EBEEF2-024B-4C20-81B4-7F22D85EB780>
+  </collection>
+</initial>

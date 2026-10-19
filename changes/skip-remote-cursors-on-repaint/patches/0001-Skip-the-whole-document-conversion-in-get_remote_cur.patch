@@ -1,0 +1,40 @@
+From ea8738fa05a033790f385d13b7c208dae391b9c5 Mon Sep 17 00:00:00 2001
+From: Gennady Uraltsev <gennady.uraltsev@gmail.com>
+Date: Sat, 17 Oct 2026 19:40:20 -0500
+Subject: [PATCH] Skip the whole-document conversion in get_remote_cursors when
+ there are none
+
+get_remote_cursors() runs on every repaint (draw_remote_cursors in draw_post)
+and converted the whole buffer with tree_to_linear_ir before looking at
+remote_cursors.  Without collaboration the array is always empty, so every
+scroll step and keystroke paid O(document size).  On an 870 KB document
+repaint_invalid_regions took about 220 ms; now about 17 ms, and the initial
+typeset drops from 7.7 s to 3.2 s.
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+---
+ src/Edit/Modify/edit_collab.cpp | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/src/Edit/Modify/edit_collab.cpp b/src/Edit/Modify/edit_collab.cpp
+index 9df4fd002..ee0e96307 100644
+--- a/src/Edit/Modify/edit_collab.cpp
++++ b/src/Edit/Modify/edit_collab.cpp
+@@ -739,8 +739,10 @@ edit_modify_rep::set_remote_cursor (string peer, string payload) {
+ array<editor_rep::remote_cursor_view>
+ edit_modify_rep::get_remote_cursors () {
+   array<remote_cursor_view> out;
+-  tree                      buf  = the_buffer ();
+-  array<linear_item>        items= tree_to_linear_ir (buf);
++  // 每次重绘都会调用；无远程光标时跳过 O(文档大小) 的线性 IR 构建
++  if (N (remote_cursors) == 0) return out;
++  tree               buf  = the_buffer ();
++  array<linear_item> items= tree_to_linear_ir (buf);
+ 
+   for (int i= 0; i < N (remote_cursors); i++) {
+     remote_cursor_entry& e= remote_cursors[i];
+
+base-commit: c68a494fc6014f6ea76aae30fcfaa8bc3136bbcc
+-- 
+2.55.0.windows.2
+

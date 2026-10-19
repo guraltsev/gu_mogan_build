@@ -1,0 +1,3 @@
+1: (document (equation* (document (gathered (tformat (cwith "1" "-1" "1" "-1" "cell-hyphen" "t") (table (row (cell "a"))))))))
+2: (document (equation* (document (aligned (tformat (cwith "1" "-1" "1" "-1" "cell-hyphen" "t") (table (row (cell "a"))))))))
+3: (document (equation* (document (gathered (tformat (cwith "1" "-1" "1" "-1" "cell-hyphen" "t") (table (row (cell "a"))))))))

@@ -1,0 +1,41 @@
+From e09cb601c05e5e388556bd1de8fffa8a7ee55861 Mon Sep 17 00:00:00 2001
+From: Gennady Uraltsev <gennady.uraltsev@gmail.com>
+Date: Sat, 17 Oct 2026 19:40:22 -0500
+Subject: [PATCH] Fix Enter in aligned nesting the table instead of adding a
+ row
+
+math-edit.scm has an old kbd-enter for aligned that treats its content as one
+formula: it splits it at the first relation into two columns and wraps it in a
+new table.  aligned now normally already contains a table (created with make,
+imported from LaTeX, or built by the gathered/aligned tools), so each Enter
+wrapped the whole table into the first cell of a new table, producing a
+staircase of nested tables.
+
+Which handler won depended on module load order against the generic
+table-markup-context handler in table-edit.scm.  Only use the legacy handler
+when the aligned block is not already a table, so the table handler always adds
+a row.
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+---
+ TeXmacs/progs/math/math-edit.scm | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/TeXmacs/progs/math/math-edit.scm b/TeXmacs/progs/math/math-edit.scm
+index 53d157ab0..acb432c2b 100644
+--- a/TeXmacs/progs/math/math-edit.scm
++++ b/TeXmacs/progs/math/math-edit.scm
+@@ -129,7 +129,7 @@
+ ) ;tm-define
+ 
+ (tm-define (kbd-enter t shift?)
+-  (:require (tree-is? t 'aligned))
++  (:require (and (tree-is? t 'aligned) (not (table-markup-context? t))))
+   (let* ((c (tree-ref t 0))
+          (l0 (concat-decompose c))
+          (l2 (list-scatter l0 binary-relation? #t))
+
+base-commit: c68a494fc6014f6ea76aae30fcfaa8bc3136bbcc
+-- 
+2.55.0.windows.2
+

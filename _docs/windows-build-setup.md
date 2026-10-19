@@ -22,7 +22,7 @@
 `scripts/configure.ps1`, then `xmake build --yes stem`.
 
 ## Local patches (branch dev/200_27/local-fixes on origin/main)
-See `patches/`: amsmath aligned, headless CLI conversion, Qt non-ASCII key input.
+See `changes/*/dev-notes/` and `changes/unapplied-qt-unicode-key-input/`: amsmath aligned, headless CLI conversion, Qt non-ASCII key input.
 User keyboard config: `user-config/my-init-texmacs.scm` (contains "fuck" test
 bindings for alpha; clean before using).
 

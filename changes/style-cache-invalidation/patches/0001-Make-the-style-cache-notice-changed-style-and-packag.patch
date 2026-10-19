@@ -1,0 +1,73 @@
+From 0ec96f77377a16a3698aef6a4f4e974aa2182c64 Mon Sep 17 00:00:00 2001
+From: Gennady Uraltsev <gennady.uraltsev@gmail.com>
+Date: Sat, 17 Oct 2026 19:40:21 -0500
+Subject: [PATCH] Make the style cache notice changed style and package files
+
+The compiled-style cache is keyed only by the style name, so a package change
+(a new macro in env-math.stem) never invalidated an entry written before.
+Styles cached earlier kept hiding the new macro indefinitely: a new tag showed
+up as an unknown <tag|...> box in "generic" while "article", compiled later,
+worked.
+
+Add a stamp (newest modification time and number of the .ts/.stem files in the
+style and package directories, scanned once per process) to the cache key.  Old
+entries are simply no longer hit.
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+---
+ src/Data/Document/new_style.cpp | 34 ++++++++++++++++++++++++++++++++-
+ 1 file changed, 33 insertions(+), 1 deletion(-)
+
+diff --git a/src/Data/Document/new_style.cpp b/src/Data/Document/new_style.cpp
+index 6db99f0b0..75e5e7c9e 100644
+--- a/src/Data/Document/new_style.cpp
++++ b/src/Data/Document/new_style.cpp
+@@ -173,10 +173,42 @@ cache_file_name_sub (tree t) {
+   }
+ }
+ 
++// 样式缓存只按样式名取键，包文件（如 env-math.stem）更新后旧缓存仍被命中，
++// 新增的宏对已缓存的样式不可见。把样式/包文件的最新修改时间与数量并入键，
++// 任一文件变化即得到新的缓存名。每个进程只扫描一次。
++static string
++package_files_stamp () {
++  static bool   done = false;
++  static string stamp= "";
++  if (done) return stamp;
++  done= true;
++
++  url roots   = url ("$TEXMACS_PATH/packages") | url ("$TEXMACS_PATH/styles") |
++                url ("$TEXMACS_HOME_PATH/packages") |
++                url ("$TEXMACS_HOME_PATH/styles");
++  url suffixes= url_wildcard ("*.ts") | url_wildcard ("*.stem");
++  url files=
++      expand (complete (roots * (suffixes | url_wildcard ("*") * suffixes)));
++
++  int newest= 0, count= 0;
++  url iter= files;
++  while (is_or (iter)) {
++    newest= max (newest, last_modified (iter[1]));
++    count++;
++    iter= iter[2];
++  }
++  if (!is_none (iter)) {
++    newest= max (newest, last_modified (iter));
++    count++;
++  }
++  stamp= as_string (newest) * "-" * as_string (count);
++  return stamp;
++}
++
+ static string
+ cache_file_name (tree t) {
+   url tmp= url_temp ("txt");
+-  save_string (tmp, cache_file_name_sub (t));
++  save_string (tmp, cache_file_name_sub (t) * "@" * package_files_stamp ());
+   return lolly::hash::md5_hexdigest (tmp) * ".scm";
+ }
+ 
+
+base-commit: c68a494fc6014f6ea76aae30fcfaa8bc3136bbcc
+-- 
+2.55.0.windows.2
+

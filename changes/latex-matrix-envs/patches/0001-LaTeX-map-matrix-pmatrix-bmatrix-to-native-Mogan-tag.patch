@@ -1,0 +1,177 @@
+From 1d9023a98ae33f50a7a33bb80523e4a59c676f11 Mon Sep 17 00:00:00 2001
+From: Gennady Uraltsev <gennady.uraltsev@gmail.com>
+Date: Sat, 17 Oct 2026 22:29:00 -0500
+Subject: [PATCH] LaTeX: map matrix/pmatrix/bmatrix to native Mogan tags
+
+Export: Mogan's matrix (parenthesised) now exports as amsmath pmatrix and
+bmatrix as bmatrix, instead of \left(/\left[ around an array. Both pull in
+amsmath.
+
+Import: LaTeX bmatrix now becomes the native bmatrix tag instead of a
+tabular* wrapped in literal brackets. pmatrix -> matrix is unchanged, and
+plain matrix stays a tabular*.
+
+Adds integration test 7002.
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+---
+ .../latex/progs/latex/convert-latex-drd.scm   |  3 +
+ .../latex/progs/latex/convert-latex-tmtex.scm |  9 +--
+ TeXmacs/tests/7002.scm                        | 78 +++++++++++++++++++
+ src/Plugins/Tex/fromtex_post.cpp              |  4 +-
+ 4 files changed, 85 insertions(+), 9 deletions(-)
+ create mode 100644 TeXmacs/tests/7002.scm
+
+diff --git a/TeXmacs/plugins/latex/progs/latex/convert-latex-drd.scm b/TeXmacs/plugins/latex/progs/latex/convert-latex-drd.scm
+index 5fbd54ac3..950adfa99 100644
+--- a/TeXmacs/plugins/latex/progs/latex/convert-latex-drd.scm
++++ b/TeXmacs/plugins/latex/progs/latex/convert-latex-drd.scm
+@@ -82,6 +82,9 @@
+   (substack "mathtools")
+ 
+   (begin-align "amsmath")
++  (begin-pmatrix "amsmath")
++  (begin-bmatrix "amsmath")
++  (begin-Bmatrix "amsmath")
+   (begin-align* "amsmath")
+   (begin-alignat "amsmath")
+   (begin-alignat* "amsmath")
+diff --git a/TeXmacs/plugins/latex/progs/latex/convert-latex-tmtex.scm b/TeXmacs/plugins/latex/progs/latex/convert-latex-tmtex.scm
+index 55350bb21..05da5867c 100644
+--- a/TeXmacs/plugins/latex/progs/latex/convert-latex-tmtex.scm
++++ b/TeXmacs/plugins/latex/progs/latex/convert-latex-tmtex.scm
+@@ -355,13 +355,7 @@
+   (tabular ("" "l" "" #f))
+   (tabular* ("" "c" "" #f))
+   (wide-tabular ("{\\noindent}" "@{}X@{}" "" #f))
+-  (matrix
+-   ((,(string->symbol "left(")) "c" (,(string->symbol "right)")) #f)
+-  ) ;matrix
+   (det ((left|) "c" (right|) #f))
+-  (bmatrix
+-   ((,(string->symbol "left[")) "c" (,(string->symbol "right]")) #f)
+-  ) ;bmatrix
+   (stack ("" "c" "" #f))
+   (choice ((left\{) "l" (right.) #f))
+   (tabbed ("" "l" "" #f))
+@@ -2105,7 +2099,8 @@
+       ) ;let*
+       (begin
+         (list
+-          `(!begin ,(symbol->string key) ,@args)
++          ;; Mogan's matrix is parenthesised, i.e. amsmath's pmatrix.
++          `(!begin ,(if (== key 'matrix) "pmatrix" (symbol->string key)) ,@args)
+           (if (== key 'three-line-table)
+             (tmtex-three-line-table-make
+               (tmtable-parser
+diff --git a/TeXmacs/tests/7002.scm b/TeXmacs/tests/7002.scm
+new file mode 100644
+index 000000000..4a5d08ec1
+--- /dev/null
++++ b/TeXmacs/tests/7002.scm
+@@ -0,0 +1,78 @@
++;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
++;;
++;; MODULE      : 7002.scm
++;; DESCRIPTION : LaTeX matrix import/export: matrix <-> pmatrix, bmatrix <-> bmatrix
++;; COPYRIGHT   : (C) 2026
++;;
++;; This software falls under the GNU general public license version 3 or later.
++;; It comes WITHOUT ANY WARRANTY WHATSOEVER. For details, see the file LICENSE
++;; in the root directory or <http://www.gnu.org/licenses/gpl-3.0.html>.
++;;
++;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
++
++(import (liii check))
++
++(check-set-mode! 'report-failed)
++
++(load "./TeXmacs/plugins/latex/progs/init-latex.scm")
++(import-from (latex latex-format))
++
++(define (matrix-body tag)
++  `(,tag (table (row (cell "1") (cell "2")) (row (cell "3") (cell "4"))))
++) ;define
++
++(define (export-math tag)
++  (serialize-latex
++    (texmacs->latex (stree->tree `(math ,(matrix-body tag)))
++      '(("texmacs->latex:encoding" . "utf-8"))
++    ) ;texmacs->latex
++  ) ;serialize-latex
++) ;define
++
++(define (import-math env)
++  (tree->stree
++    (latex->texmacs
++      (parse-latex (string-append "$\\begin{" env "}1&2\\\\3&4\\end{" env "}$"))
++    ) ;latex->texmacs
++  ) ;tree->stree
++) ;define
++
++(define (contains-tag? t tag)
++  (cond ((== t tag) #t)
++        ((pair? t) (or (contains-tag? (car t) tag) (contains-tag? (cdr t) tag)))
++        (else #f)
++  ) ;cond
++) ;define
++
++(define (test-export)
++  (with m (export-math 'matrix)
++    (check (string-contains? m "begin{pmatrix}") => #t)
++    (check (string-contains? m "begin{array}") => #f)
++    (check (string-contains? m "left(") => #f)
++  ) ;with
++  (with b (export-math 'bmatrix)
++    (check (string-contains? b "begin{bmatrix}") => #t)
++    (check (string-contains? b "begin{array}") => #f)
++    (check (string-contains? b "left[") => #f)
++  ) ;with
++) ;define
++
++(define (test-import)
++  (with p (import-math "pmatrix")
++    (check (contains-tag? p 'matrix) => #t)
++  ) ;with
++  (with b (import-math "bmatrix")
++    (check (contains-tag? b 'bmatrix) => #t)
++    (check (contains-tag? b 'tabular*) => #f)
++  ) ;with
++  (with m (import-math "matrix")
++    (check (contains-tag? m 'tabular*) => #t)
++    (check (contains-tag? m 'matrix) => #f)
++  ) ;with
++) ;define
++
++(tm-define (test_7002)
++  (test-export)
++  (test-import)
++  (check-report)
++) ;tm-define
+diff --git a/src/Plugins/Tex/fromtex_post.cpp b/src/Plugins/Tex/fromtex_post.cpp
+index b28f0eb92..69b73cb5d 100644
+--- a/src/Plugins/Tex/fromtex_post.cpp
++++ b/src/Plugins/Tex/fromtex_post.cpp
+@@ -344,7 +344,7 @@ parse_pmatrix (tree& r, tree t, int& i, string lb, string rb, string fm) {
+       break;
+     }
+     else if (v == tree (BEGIN, "bmatrix")) {
+-      parse_pmatrix (E, t, i, "[", "]", "tabular*");
++      parse_pmatrix (E, t, i, "", "", "bmatrix");
+       if (i < N (t)) continue;
+       break;
+     }
+@@ -524,7 +524,7 @@ finalize_pmatrix (tree t) {
+         else if (u[i][0] == "pmatrix")
+           parse_pmatrix (r, u, i, "", "", "matrix");
+         else if (u[i][0] == "bmatrix")
+-          parse_pmatrix (r, u, i, "[", "]", "tabular*");
++          parse_pmatrix (r, u, i, "", "", "bmatrix");
+         else if (u[i][0] == "vmatrix") parse_pmatrix (r, u, i, "", "", "det");
+         else if (u[i][0] == "smallmatrix")
+           parse_pmatrix (r, u, i, "", "", "matrix*");
+
+base-commit: c68a494fc6014f6ea76aae30fcfaa8bc3136bbcc
+-- 
+2.55.0.windows.2
+
