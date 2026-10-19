@@ -18,10 +18,10 @@ files go; copy them there and restart Mogan.
   (Tab, Alt+letter), and the user layer stores a key literally. The macro `user-kbd-map+`
   therefore registers every binding under both spellings (`var` -> `tab`, `math t` -> `A-t`);
   a test checks that each physical form reaches the same action.
-  `Ctrl+Shift+C` then a letter copies the selection to a format, `Ctrl+Shift+X` then a letter cuts it:
-  `l` LaTeX, `h` HTML, `v` verbatim, `b` BibTeX, `s` STEM, `c` source code, `u` TMU, `t` TeXmacs.
-  They do nothing when nothing is selected. There is no paste-from key: `Ctrl+Shift+V` is Mogan's
-  smart paste, which already detects LaTeX.
+  `Ctrl+Shift+C` then a letter copies the selection to a format: `l` LaTeX, `h` HTML, `v` verbatim,
+  `b` BibTeX, `s` STEM, `c` source code, `u` TMU, `t` TeXmacs. It does nothing when nothing is
+  selected. There are no cut-to or paste-from keys (`Ctrl+Shift+V` is Mogan's smart paste, which
+  already detects LaTeX).
   Not covered: `A-x`, which opens the "Interactive command" prompt (it only runs commands that
   take arguments).
   `\lga` and `\oper` (and Alt+T) add their style package to the document if it is missing; without
