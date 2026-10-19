@@ -33,9 +33,11 @@ environments with an option is
     if (is_func (v, BEGIN, 2) && is_enunciation (v) && v[0] != "proof*")
 
 It rewrites `theorem*` + option into `<theorem>` followed by `<dueto|option>`. It excludes `proof*`
-explicitly, and no other branch handles `proof*`. The generic branch for admissible environments was not
-reached for it either, so the begin marker was dropped. The closing `(END "proof")` then no longer matched
-any opening, and was not emitted for a titled proof either. Result: neither marker survived.
+explicitly, and no other branch in `finalize_layout` names `proof*`. I did not trace exactly which later
+stage discards the leftover `proof*` begin marker (the generic branch for admissible environments would
+pass it on, but the final tree contains no trace of it); the observable result is that neither the begin
+nor the end marker of a titled proof survives, and the fix below does not depend on that detail because
+the marker is now replaced before it reaches those stages.
 
 ## Change
 
