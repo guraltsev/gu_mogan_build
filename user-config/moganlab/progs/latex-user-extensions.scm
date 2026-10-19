@@ -146,6 +146,11 @@
               (pair? (cadr x)) (eq? (caadr x) 'document))
          (let ((rest (drop-symbol-assigns (cdadr x))))
            (if (null? rest) '%drop `(hide-preamble (document ,@rest)))))
+        ;; \op{foo}: the importer reads the argument as math ("f*o*o")
+        ((and (pair? x) (eq? (car x) 'op) (pair? (cdr x)) (null? (cddr x))
+              (string? (cadr x)))
+         (list->string (filter (lambda (c) (not (char=? c #\*)))
+                               (string->list (cadr x)))))
         ((pair? x) (filter (lambda (e) (not (eq? e '%drop)))
                            (map transform-symbol-commands x)))
         (else x)
@@ -182,3 +187,21 @@
 (latex-register-symbol-command "Q" "<bbb-Q>" "Q")
 (latex-register-symbol-command "Z" "<bbb-Z>" "Z")
 (latex-register-symbol-command "N" "<bbb-N>" "N")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; \tmop -> \op (operator names), defined in the preamble like any macro
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(eval '(smart-table latex-texmacs-macro (op (ensuremath (operatorname 1)))))
+
+(define (rename-tmop x)
+  (cond ((and (pair? x) (eq? (car x) 'tmop)) (cons 'op (map rename-tmop (cdr x))))
+        ((pair? x) (map rename-tmop x))
+        (else x)
+  ) ;cond
+) ;define
+
+(tm-define (tmtex-postprocess x)
+  (:require #t)
+  (rename-tmop (former x))
+) ;tm-define
