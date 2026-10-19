@@ -135,7 +135,7 @@
         ("( math t" (make 'matrix))
         ("[ math t" (make 'bmatrix))
         ("{ math t" (make 'choice))
-        ("math t" (make 'ltae))
+        ("math t" (insert-go-to '(lga "t" (table (row (cell "")))) '(1 0 0 0 0)))
         ("math t var" (make 'tabular*))
         ("math t var var" (make 'stack))
         ("math t var var var" (make 'choice))
@@ -187,3 +187,7 @@
         ("Psi" "<Psi>")
         ("zeta" "<zeta>")
 )
+
+;; LaTeX table macros (lga) (see latex-table-macros.scm)
+(load (url->system (url-unix "$TEXMACS_HOME_PATH/progs" "latex-table-macros.scm")))
+
