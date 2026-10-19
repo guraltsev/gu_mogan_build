@@ -149,8 +149,10 @@
         ;; \op{foo}: the importer reads the argument as math ("f*o*o")
         ((and (pair? x) (eq? (car x) 'op) (pair? (cdr x)) (null? (cddr x))
               (string? (cadr x)))
-         (list->string (filter (lambda (c) (not (char=? c #\*)))
-                               (string->list (cadr x)))))
+         ;; math-up, not a bare string: a single letter would be italic and a longer
+         ;; name would merge with a neighbouring letter ("Diff" + "f" -> "Difff")
+         `(math-up ,(list->string (filter (lambda (c) (not (char=? c #\*)))
+                                          (string->list (cadr x))))))
         ((pair? x) (filter (lambda (e) (not (eq? e '%drop)))
                            (map transform-symbol-commands x)))
         (else x)
