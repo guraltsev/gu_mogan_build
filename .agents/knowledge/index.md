@@ -15,7 +15,7 @@ Set A, longer, one topic per file:
 | `build-test-env.md` | building, running headless, writing test scripts, isolating a build |
 | `latex-import-export.md` | touching the LaTeX importer/exporter (`src/Plugins/Tex`, `plugins/latex`) |
 | `scheme-editor-internals.md` | touching menus, keyboard, focus bar, kbd/Enter handlers, style cache |
-| `formatting-gf-fmt.md` | running `gf fmt` / clang-format on this machine (v22 vs CI v19) |
+| `formatting-gf-fmt.md` | running `gf fmt` / clang-format (local v22 vs CI v19: use a v19 binary for C++, see file) |
 | `pitfalls.md` | before using the shell tool, git on Windows, or writing test fixtures |
 | `working-with-this-user.md` | before submitting, naming branches, or writing PR/issue text |
 

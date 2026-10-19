@@ -35,3 +35,15 @@ gf fmt --changed-since <upstream base c68a494fc>
   line wrapping only; the build was not redone for this commit.
 - Patch 7 and patch 6 files (`fromtex_post.cpp`, `edit_collab.cpp`) needed no
   changes; they were already clean.
+
+## Upstream CI uses clang-format 19 (update, 2026-10-19)
+- For now upstream CI (`gf fmt --check`) runs **clang-format 19.1.7**; the local msys one is 22.1.8 and
+  formats some unmodified upstream lines differently (seen: a continuation line in `parsetex.cpp`
+  near `is_math_environment`; CI failed with "1 file(s) need formatting"). Do not trust `gf fmt` locally for C++.
+- Get v19 without admin: `python -m pip install --target <dir> clang-format==19.1.7`, then
+  `<dir>/clang_format/data/bin/clang-format.exe --dry-run <files>` (or `-i`). A file is correct when
+  `--dry-run` prints nothing. Run it on every changed C++ file before pushing, and check the diff
+  contains only your own lines.
+- `gf fmt` also rewrites Scheme files in ways that are not harmless: it adds a comma before string literals
+  inside quasiquotes (`,"1"`) across a whole file (`convert-latex-tmtex.scm`). After running it, keep only the
+  hunks for your own lines (restore the file and re-apply by hand).
