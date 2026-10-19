@@ -78,6 +78,14 @@ The LaTeX parser consumes the optional argument and renames the environment `pro
 `\end{proof}` carries no trace of the option, so the matching end marker no longer pairs with anything.
 The result is a document with neither begin nor end.
 
+## Related issues
+
+- #2985 (closed) asked for the opposite direction: Mogan's proof block should export to LaTeX as
+  `\begin{proof} ... \end{proof}`. This report is about the import side. After the import fix, a titled
+  proof exports through the existing `render-proof` path as a custom `proof*` environment (defined in the
+  preamble as a wrapper around `\begin{proof}[...]`) rather than as a plain `\begin{proof}[Title]`;
+  that is the same kind of export problem as #2985 and is not changed here.
+
 ## Related, separate
 
 `\begin{theorem}[Foo]` after `\newtheorem{theorem}{Theorem}` also loses its option handling (`[Foo]`
