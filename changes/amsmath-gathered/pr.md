@@ -1,4 +1,4 @@
-**Branch:** `amsmath-gathered` (1 commit, `7958df62e`) -> `MoganLab/mogan:main`
+**Branch:** `amsmath-gathered` (1 commit, `58148954a`) -> `MoganLab/mogan:main`
 
 **Title:** `[NNNN] Support amsmath aligned and gathered: gathered macro, LaTeX import and export`
 
@@ -45,8 +45,8 @@ left as a stray argument.
   and padding; both spellings (`aligned`/`aligned*`, `gathered`/`gathered*`) are matched.
 
 - **`math-edit.scm`:** `gathered` and `aligned` form a variant group, so Ctrl+Tab on either
-  one switches to the other (both take the same body, so the rows are kept). Not tested
-  in a running editor.
+  one switches to the other (both take the same body, so the rows are kept). Checked by
+  hand in a running Windows release build: Ctrl+Tab switches between the two.
 
 **Behaviour change to be aware of:** existing `\begin{aligned}` imports now produce the
 native `aligned` macro instead of `tabular*`.
@@ -89,6 +89,10 @@ other change.
   `generic` and `article` I checked the text extracted from the PDF (the rows and a
   single equation number).
 - `array` and `pmatrix` imports were checked to be unaffected.
+- Re-checked on a release build of this branch (`58148954a`) with a fresh user directory:
+  the same `.tex -> .tmu` imports and `.tmu -> .pdf` rendering give the results above
+  (one equation number, centered rows); a LaTeX file exported from the editor has
+  `\usepackage{amsmath}` and `\begin{equation}\begin{gathered}...\end{gathered}\end{equation}`.
 
 ## Not checked / limits
 
