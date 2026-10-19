@@ -39,6 +39,20 @@
 ;; built-in "$ $" binding ignores context and would nest a display equation
 ;; inside math.  When the sequence completes, Mogan has already undone the
 ;; tentative first "$", so "not in math" here means the sequence began in text.
+;; Insert actions for the table/operator macros. The document needs the style package
+;; that defines the macro; without it the tag is unknown and shows as a plain table.
+(tm-define (user-ensure-package pack)
+  (if (not (has-style-package? pack)) (add-style-package pack)))
+
+(tm-define (user-insert-lga)
+  (user-ensure-package "lga")
+  (insert-go-to '(lga "t" (table (row (cell "")))) '(1 0 0 0 0)))
+
+(tm-define (user-insert-oper)
+  (user-ensure-package "oper")
+  ;; explicit tree: (make 'oper) gives an empty tag until the new style is compiled
+  (insert-go-to '(oper "") '(0 0)))
+
 (tm-define (user-dollar-dollar)
   (when (not (in-math?))
     (make 'equation*)))
@@ -135,7 +149,7 @@
         ("( math t" (make 'matrix))
         ("[ math t" (make 'bmatrix))
         ("{ math t" (make 'choice))
-        ("math t" (insert-go-to '(lga "t" (table (row (cell "")))) '(1 0 0 0 0)))
+        ("math t" (user-insert-lga))
         ("math t var" (make 'tabular*))
         ("math t var var" (make 'stack))
         ("math t var var var" (make 'choice))
@@ -191,3 +205,21 @@
 ;; LaTeX table macros (lga) (see latex-user-extensions.scm)
 (load (url->system (url-unix "$TEXMACS_HOME_PATH/progs" "latex-user-extensions.scm")))
 
+
+;; Typing \name and Enter: the shorthands of latex-user-extensions.scm. Without these
+;; entries Mogan only finds \name if the document's style defines a macro of that name.
+(kbd-commands
+  ("mc" "Use calligraphic font" (make-with "font" "cal"))
+  ("mb" "Use blackboard bold font" (make-with "font" "Bbb"))
+  ("mbf" "Use bold font series" (make-with "font-series" "bold"))
+  ("mf" "Use fraktur font" (make-with "font" "Euler"))
+  ("ms" "Use script font" (make-with "font" "cal*"))
+  ("R" "insert#<bbb-R>" (kbd-insert "<bbb-R>"))
+  ("C" "insert#<bbb-C>" (kbd-insert "<bbb-C>"))
+  ("Q" "insert#<bbb-Q>" (kbd-insert "<bbb-Q>"))
+  ("Z" "insert#<bbb-Z>" (kbd-insert "<bbb-Z>"))
+  ("N" "insert#<bbb-N>" (kbd-insert "<bbb-N>"))
+  ("1" "insert#<bbb-1>" (kbd-insert "<bbb-1>"))
+  ("oper" "Operator name" (user-insert-oper))
+  ("lga" "Left-aligned column" (user-insert-lga))
+) ;kbd-commands

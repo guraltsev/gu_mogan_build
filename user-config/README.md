@@ -12,7 +12,10 @@ files go; copy them there and restart Mogan.
 ## Contents
 
 - `moganlab/progs/my-init-texmacs.scm` - user init: keyboard bindings (`$`, `$$`, Alt+Up/Down,
-  backtick math keys, Alt+T inserts `lga`) and a `(load ...)` of the table-macro registry.
+  backtick math keys, Alt+T inserts `lga`), the typed commands `\mc \mb \mbf \mf \ms \R \C \Q \Z \N
+  \1 \oper \lga` (type the name, press Enter), and a `(load ...)` of the LaTeX extensions below.
+  `\lga` and `\oper` (and Alt+T) add their style package to the document if it is missing; without
+  the package Mogan cannot render the tag and shows a plain centered table.
 - `moganlab/progs/latex-user-extensions.scm` - LaTeX import/export extensions (one-column table macros), no
   Mogan source changes. Register more with
   `(latex-register-table-macro "name" "style-package" "default-option" "preamble" "latex-pkg" ...)`
@@ -43,7 +46,8 @@ files go; copy them there and restart Mogan.
 - `tex/lga.sty` - optional standalone copy of the same definition, for hand-written documents;
   exported files do not need it.
 - `tests/` - headless test suites, one per feature: `test-lga.scm`, `test-symbols.scm`,
-  `test-oper.scm`, `test-mathfonts.scm`, `test-accents.scm`, `test-clipboard.scm` (paste and copy of LaTeX snippets);
+  `test-oper.scm`, `test-mathfonts.scm`, `test-accents.scm`, `test-clipboard.scm` (paste and copy of LaTeX snippets), `test-editor.scm`
+  (typed `\name` commands and Alt+T);
   shared code in `helpers.scm`. Each covers import, export, the preamble definitions and comments,
   that unused commands are not defined, and round trips. Run from PowerShell:
 
