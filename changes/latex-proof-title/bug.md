@@ -15,7 +15,7 @@ shown. A plain `\begin{proof} ... \end{proof}` imports correctly.
 
 Mogan STEM 2026.3.8-rc.1 built from `upstream/main` at `af724b028`, Windows 11, release build, headless
 conversion (`MoganSTEM.exe -headless -c in.tex out.tmu`). The behaviour was checked on a build of exactly
-that source (the single changed file reverted to `upstream/main`), see the attachments.
+that source, see the attachments.
 
 ## Steps to reproduce
 
@@ -52,7 +52,9 @@ Plain.
 The first proof has no `<proof>` wrapper and no title: the text "Proof of Theorem 1" is gone and
 `Because x.` is a bare paragraph (no "Proof." heading, no end-of-proof square).
 
-## Expected result (`attachments/proof-after.tmu`)
+## Expected result
+
+The proof environment is kept and the title replaces the default "Proof" heading, i.e. something like
 
 ```
 <\body>
@@ -66,37 +68,50 @@ The first proof has no `<proof>` wrapper and no title: the text "Proof of Theore
 </body>
 ```
 
-`render-proof` is the macro Mogan's own `proof` and `proof-of` are built on, and it is the tag
-the editor uses for a proof with its own title, so the title replaces the word "Proof" as it does in
-LaTeX.
+`render-proof` is the macro Mogan's own `proof` and `proof-of` are built on, and it is the tag the editor
+uses for a proof with its own title (`text-edit.scm` rewrites `proof` into `(render-proof "" body)` when
+the title is made editable), so it is the natural counterpart of `\begin{proof}[Title]`.
 
-## Cause
+## Where it comes from (evidence)
 
-The LaTeX parser consumes the optional argument and renames the environment `proof*`. In
-`finalize_layout` (`src/Plugins/Tex/fromtex_post.cpp`) the branch for theorem-like environments
-(`dueto`) explicitly excludes `proof*`, and no other branch emits a begin marker for it. The closing
-`\end{proof}` carries no trace of the option, so the matching end marker no longer pairs with anything.
-The result is a document with neither begin nor end.
+The parser is not at fault. Parsing the file with `(parse-latex-document src)` and printing the tree gives,
+for the first proof:
+
+```
+(tuple "\begin-proof*" (concat "P" "r" "o" "o" "f" " " "o" "f" " " "T" "h" "e" "o" "r" "e" "m" " " "1"))
+ ... body ...
+(tuple "\end-proof")
+```
+
+so the option is read and the environment is renamed `proof*` (`parsetex.cpp`: after an optional
+argument is consumed, `t[0]->label= t[0]->label * "*"`). The final tree from `latex->texmacs` contains
+neither a begin nor an end marker for that proof, so the loss happens in the post-processing in
+`src/Plugins/Tex/fromtex_post.cpp`, function `finalize_layout`:
+
+- The branch that handles theorem-like environments with an option is
+  `if (is_func (v, BEGIN, 2) && is_enunciation (v) && v[0] != "proof*")`. It turns `theorem*` into
+  `<theorem>` plus `<dueto|...>`. It explicitly excludes `proof*`.
+- No other branch in `finalize_layout` mentions `proof*`, so that begin marker is not emitted.
+- The closing `\end{proof}` is parsed as `(END "proof")`: it carries no trace of the option, so there is
+  nothing that could pair it with a begin marker of a different name.
+- Mogan's own `proof*` is renamed `render-proof` by the format upgrader
+  (`src/Data/Convert/Texmacs/upgradetm.cpp`), which is why a `proof*` marker is not usable as the target
+  name either.
+
+Untitled proofs do not go through the `proof*` rename and so are unaffected, which matches the observation.
 
 ## Related issues
 
-- #2985 (closed, fixed by #2990, tests in #3052) asked for the opposite direction: Mogan's proof block
-  should export to LaTeX as `\begin{proof} ... \end{proof}`. #2990 changed the rules for the `proof` and
-  `proof*` tags. None of the three touches the importer (`src/Plugins/Tex`), so they do not fix this
-  report: on `upstream/main`, which contains all of them, `\begin{proof}[Title]` still loses the
-  environment on import. A proof with a custom title, however, is the `render-proof` tag in current documents
-  (the editor itself turns `proof` into `render-proof` when the title is made editable), and its
-  separate rule `tmtex-render-proof` still wrote a custom `proof*` environment
-  (`\begin{proof*}{Title}` plus a preamble `\newenvironment{proof*}[1]{\begin{proof}[{#1}]}...`).
-  Together with this import fix that broke the round trip, so the PR also changes that export rule to
-  `\begin{proof}[Title]` (plain `\begin{proof}` for an empty title).
-
-## Related, separate
-
-`\begin{theorem}[Foo]` after `\newtheorem{theorem}{Theorem}` also loses its option handling (`[Foo]`
-stays as literal text). That is a different cause (the parser) and is reported separately.
+- #2985 (closed, fixed by #2990, tests in #3052) is about the opposite direction: Mogan's proof block should
+  export to LaTeX as `\begin{proof} ... \end{proof}`. #2990 changed the export rules for the `proof` and
+  `proof*` tags and #3052 added export tests for them. None of the three touches the importer
+  (`src/Plugins/Tex`), so they do not address this report: the source used here (`upstream/main` at
+  `af724b028`) contains all of them and still loses the environment on import.
+- A proof with a custom title is the `render-proof` tag in current documents, and its export rule
+  `tmtex-render-proof` writes a custom `proof*` environment
+  (`\begin{proof*}{Title}` plus a preamble `\newenvironment{proof*}[1]{\begin{proof}[{#1}]}...`) rather than
+  `\begin{proof}[Title]`. This is the same kind of export problem as #2985, for the titled case.
 
 ## Attachments
 
-All in `attachments/`: `proof.tex` (input), `proof-before.tmu` (unfixed), `proof-after.tmu` (fixed),
-`test-7003-before-fix.txt` (`5 correct, 3 failed`), `test-7003-after-fix.txt` (`8 correct, 0 failed`).
+In `attachments/`: `proof.tex` (input) and `proof-before.tmu` (actual output on `upstream/main`).
