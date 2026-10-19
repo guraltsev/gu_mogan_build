@@ -1,0 +1,118 @@
+;; User-level LaTeX table macros (no Mogan source changes). Loaded from my-init-texmacs.scm.
+;;
+;; (latex-register-table-macro "<cmd>" "<style package>" "<default option>")
+;; Import: \cmd[o]{a \ b}  ->  (cmd "o" (table (row (cell a)) (row (cell b))))   (\cmd{..} uses the default)
+;; Export: (cmd "o" (table ...)) -> \cmd[o]{a\ b}  (option omitted when equal to the default),
+;;         and \usepackage{<cmd>} is added, so <cmd>.sty must be findable by LaTeX.
+
+(plugin-initialize 'latex)
+(import-from (latex latex-format))
+(import-from (latex convert-latex-tmtex))
+(import-from (latex convert-latex-tools))
+
+(define latex-table-macros (make-ahash-table))      ; name -> (package . default)
+(define latex-table-macros-used '())
+
+(define (latex-register-table-macro name pkg default)
+  (ahash-set! latex-table-macros name (cons pkg default))
+  (let ((sym (string->symbol name))
+        (h (lambda (l) (table-macro-export name l))))
+    (eval `(logic-dispatcher tmtex-extra-methods% (,sym ,h)))
+  ) ;let
+) ;define
+
+;; ---- export ----
+(define (table-macro-export name l)
+  (let* ((reg (ahash-ref latex-table-macros name))
+         (opt (if (> (length l) 1) (car l) (cdr reg)))
+         (res (tmtex (list 'table-macro-rows (cAr l))))
+         (rows (if (and (pair? res) (pair? (car res)) (eq? (caar res) '!begin))
+                   (cadr res)
+                   res))
+        ) ;
+    (latex-add-extra (car reg))
+    `(,(string->symbol name)
+      ,@(if (== opt (cdr reg)) '() `((!option ,opt)))
+      ,(if (and (pair? rows) (memq (car rows) '(!group !table))) rows `(!group ,rows)))
+  ) ;let*
+) ;define
+
+;; ---- import ----
+(define (table-macro-rows body*)
+  (define body
+    (if (and (pair? body*) (eq? (car body*) 'document)
+             (pair? (cdr body*)) (null? (cddr body*)))
+        (cadr body*)
+        body*))
+  (let loop ((l (if (and (pair? body) (eq? (car body) 'concat)) (cdr body) (list body)))
+             (cur '())
+             (rows '()))
+    (define (cell)
+      `(cell ,(cond ((null? cur) "")
+                    ((null? (cdr cur)) (car cur))
+                    (else `(concat ,@(reverse cur))))))
+    (cond ((null? l) (reverse (cons `(row ,(cell)) rows)))
+          ((equal? (car l) '(next-line))
+           (loop (cdr l) '() (cons `(row ,(cell)) rows)))
+          (else (loop (cdr l) (cons (car l) cur) rows)))
+  ) ;let
+) ;define
+
+(define (table-macro-star-name s)
+  (let ((n (string-length s)))
+    (and (> n 1) (== (substring s (- n 1) n) "*") (substring s 0 (- n 1)))
+  ) ;let
+) ;define
+
+(define (transform-table-macros x)
+  (define (reg-of s) (ahash-ref latex-table-macros s))
+  (define (use! reg) (set! latex-table-macros-used (cons (car reg) latex-table-macros-used)))
+  (cond ((and (pair? x) (symbol? (car x)) (pair? (cdr x)))
+         (let* ((s (symbol->string (car x)))
+                (base (table-macro-star-name s)))
+           (cond ((and (null? (cddr x)) (reg-of s))
+                  (use! (reg-of s))
+                  `(,(car x) ,(cdr (reg-of s)) (table ,@(table-macro-rows (transform-table-macros (cadr x))))))
+                 ((and base (reg-of base) (pair? (cddr x)) (null? (cdddr x)) (string? (cadr x)))
+                  (use! (reg-of base))
+                  `(,(string->symbol base) ,(cadr x) (table ,@(table-macro-rows (transform-table-macros (caddr x))))))
+                 (else (cons (car x) (map transform-table-macros (cdr x)))))))
+        ((pair? x) (map transform-table-macros x))
+        (else x)
+  ) ;cond
+) ;define
+
+(define (add-table-macro-packages st)
+  (let ((pkgs (list-remove-duplicates
+                (filter (lambda (p) (and (string? p) (!= p ""))) latex-table-macros-used))))
+    (if (or (null? pkgs) (not (pair? st)) (not (eq? (car st) 'document)))
+        st
+        (map (lambda (e)
+               (if (and (pair? e) (eq? (car e) 'style) (pair? (cdr e))
+                        (pair? (cadr e)) (eq? (caadr e) 'tuple))
+                   `(style (tuple ,@(cdadr e) ,@pkgs))
+                   e))
+             st))
+  ) ;let
+) ;define
+
+(define latex-document->texmacs-before-table-macros latex-document->texmacs)
+
+(define (latex-document->texmacs-with-table-macros x . opts)
+  (let ((res (apply latex-document->texmacs-before-table-macros (cons x opts))))
+    (set! latex-table-macros-used '())
+    (stree->tree (add-table-macro-packages (transform-table-macros (tree->stree res))))
+  ) ;let
+) ;define
+
+(converter latex-document
+  texmacs-tree
+  (:function-with-options latex-document->texmacs-with-table-macros)
+  (:option "latex->texmacs:fallback-on-pictures" "on")
+  (:option "latex->texmacs:source-tracking" "off")
+  (:option "latex->texmacs:conservative" "off")
+  (:option "latex->texmacs:transparent-source-tracking" "off")
+) ;converter
+
+;; Registrations
+(latex-register-table-macro "lga" "lga" "t")

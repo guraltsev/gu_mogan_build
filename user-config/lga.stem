@@ -1,0 +1,31 @@
+(document (TeXmacs "1.99.20")
+  (style "source")
+  (body
+    (document
+      (active*
+        (src-title (document (src-package "lga" "1.0")
+                     (src-purpose (document "lga[align]{...}: left-aligned one-column table (mathtools lgathered).")
+                     ) ;src-purpose
+                   ) ;document
+        ) ;src-title
+      ) ;active*
+      (assign "lga"
+        (macro "align" "body"
+          (document (math-table-base (tformat (twith "table-min-cols" "1")
+                                       (twith "table-max-cols" "1")
+                                       (twith "table-valign" (arg "align"))
+                                       (cwith "1" "-1" "1" "-1" "cell-lsep" "0spc")
+                                       (cwith "1" "-1" "1" "-1" "cell-rsep" "0spc")
+                                       (cwith "1" "-1" "1" "-1" "cell-bsep" "0.1fn")
+                                       (cwith "1" "-1" "1" "-1" "cell-tsep" "0.1fn")
+                                       (cwith "1" "-1" "1" "-1" "cell-halign" "l")
+                                       (cwith "1" "-1" "1" "-1" "cell-block" "no")
+                                       (arg "body")
+                                     ) ;tformat
+                    ) ;math-table-base
+          ) ;document
+        ) ;macro
+      ) ;assign
+    ) ;document
+  ) ;body
+) ;document
