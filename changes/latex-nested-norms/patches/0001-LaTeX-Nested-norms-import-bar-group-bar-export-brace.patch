@@ -1,4 +1,4 @@
-From 92a7ac6e0493e7282a0e6531ae2e8f5da0d9cb9e Mon Sep 17 00:00:00 2001
+From b27075851920cc29c9b055444a6ab2ff31ca2170 Mon Sep 17 00:00:00 2001
 From: Gennady Uraltsev <gennady.uraltsev@gmail.com>
 Date: Sat, 17 Oct 2026 20:53:38 -0500
 Subject: [PATCH] [LaTeX] Nested norms: import bar{group}bar, export braces
@@ -18,7 +18,7 @@ Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
  5 files changed, 121 insertions(+), 1 deletion(-)
 
 diff --git a/TeXmacs/plugins/latex/progs/latex/convert-latex-tmtex.scm b/TeXmacs/plugins/latex/progs/latex/convert-latex-tmtex.scm
-index 55350bb21..ccdc7ab35 100644
+index 60b7f47d8..828dbb54d 100644
 --- a/TeXmacs/plugins/latex/progs/latex/convert-latex-tmtex.scm
 +++ b/TeXmacs/plugins/latex/progs/latex/convert-latex-tmtex.scm
 @@ -1563,6 +1563,48 @@
@@ -70,7 +70,7 @@ index 55350bb21..ccdc7ab35 100644
  (define (convert-around x)
    (with d (downgrade-brackets x) (tmtex-concat (if (pair? d) (cdr d) (list d))))
  ) ;define
-@@ -4413,6 +4455,7 @@
+@@ -4411,6 +4453,7 @@
   (math-and (,tmtex-mathbin 1))
   (math-not (,tmtex-mathord 1))
   (math-relation (,tmtex-mathrel 1))
@@ -78,7 +78,7 @@ index 55350bb21..ccdc7ab35 100644
   (math-union (,tmtex-mathbin 1))
   (math-intersection (,tmtex-mathbin 1))
   (math-exclude (,tmtex-mathbin 1))
-@@ -4876,7 +4919,12 @@
+@@ -4874,7 +4917,12 @@
          result
        ) ;with
      ) ;let*
@@ -223,7 +223,7 @@ index 06709c6e3..72fb6ff81 100644
                          (latex_type (t[i][0]->label) == "operator");
      bool cc_flag= is_concat (t[i]);
 
-base-commit: c68a494fc6014f6ea76aae30fcfaa8bc3136bbcc
+base-commit: af724b028e555764ce7373c0792f9c71efd0e012
 -- 
 2.55.0.windows.2
 

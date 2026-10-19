@@ -1,7 +1,7 @@
-From e7701fe3fb7f5b085cb6832ae047c6710fb707f2 Mon Sep 17 00:00:00 2001
+From 8ec83b7c0c3734ab685f92e5d6c3942850d15209 Mon Sep 17 00:00:00 2001
 From: Gennady Uraltsev <gennady.uraltsev@gmail.com>
 Date: Sat, 17 Oct 2026 19:40:21 -0500
-Subject: [PATCH] Fix headless -c file conversion
+Subject: [PATCH 1/2] Fix headless -c file conversion
 
 MoganSTEM -headless -c <in> <out> had two problems:
 
@@ -72,7 +72,7 @@ index a93fbe47e..ea6293f6c 100644
            }
            // -c 默认隐含 -q：转换完成后自动退出
 
-base-commit: c68a494fc6014f6ea76aae30fcfaa8bc3136bbcc
+base-commit: af724b028e555764ce7373c0792f9c71efd0e012
 -- 
 2.55.0.windows.2
 

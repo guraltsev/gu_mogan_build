@@ -1,4 +1,4 @@
-From 5e21639cdebd7e88580bbcf8791bc9764e81fb96 Mon Sep 17 00:00:00 2001
+From 8672b6be55199a127e452d17c0c2ac037ed42eeb Mon Sep 17 00:00:00 2001
 From: Gennady Uraltsev <gennady.uraltsev@gmail.com>
 Date: Sat, 17 Oct 2026 19:40:21 -0500
 Subject: [PATCH] Delay the mode/focus toolbar refresh while the cursor moves
@@ -128,7 +128,7 @@ index 6b4e1b41c..ae8367d49 100644
    double magf;                   // the current magnification factor
    SI     pixel;                  // current size of a pixel on the screen
 
-base-commit: c68a494fc6014f6ea76aae30fcfaa8bc3136bbcc
+base-commit: af724b028e555764ce7373c0792f9c71efd0e012
 -- 
 2.55.0.windows.2
 

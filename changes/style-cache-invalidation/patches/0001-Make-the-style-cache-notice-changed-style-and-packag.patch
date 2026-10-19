@@ -1,4 +1,4 @@
-From 0ec96f77377a16a3698aef6a4f4e974aa2182c64 Mon Sep 17 00:00:00 2001
+From 47723161cde3d6460f47356ed66096e20f7864b3 Mon Sep 17 00:00:00 2001
 From: Gennady Uraltsev <gennady.uraltsev@gmail.com>
 Date: Sat, 17 Oct 2026 19:40:21 -0500
 Subject: [PATCH] Make the style cache notice changed style and package files
@@ -67,7 +67,7 @@ index 6db99f0b0..75e5e7c9e 100644
  }
  
 
-base-commit: c68a494fc6014f6ea76aae30fcfaa8bc3136bbcc
+base-commit: af724b028e555764ce7373c0792f9c71efd0e012
 -- 
 2.55.0.windows.2
 

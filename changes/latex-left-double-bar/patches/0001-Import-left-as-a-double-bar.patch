@@ -1,4 +1,4 @@
-From c18646126455e7f1ccf47a5f74bed675b0b82f31 Mon Sep 17 00:00:00 2001
+From a406424a494330f1df7780ac0397d8cdaca58437 Mon Sep 17 00:00:00 2001
 From: Gennady Uraltsev <gennady.uraltsev@gmail.com>
 Date: Sat, 17 Oct 2026 21:01:38 -0500
 Subject: [PATCH] Import \left\| as a double bar
@@ -26,7 +26,7 @@ index 06709c6e3..7c017c848 100644
      if (s == "Vert" || s == "Arrowvert") s= "||";
      if (s == "lbrace") s= "{";
 
-base-commit: c68a494fc6014f6ea76aae30fcfaa8bc3136bbcc
+base-commit: af724b028e555764ce7373c0792f9c71efd0e012
 -- 
 2.55.0.windows.2
 

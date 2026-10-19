@@ -1,4 +1,4 @@
-From 011d07d0f2362bb5b1667f388a120edfdb5407a0 Mon Sep 17 00:00:00 2001
+From 45c0274ac3f3e27a61e404f10eec650439c42cc6 Mon Sep 17 00:00:00 2001
 From: Gennady Uraltsev <gennady.uraltsev@gmail.com>
 Date: Sat, 17 Oct 2026 19:40:21 -0500
 Subject: [PATCH] Add user keyboard layer: user-kbd-map / user-kbd-unmap
@@ -120,7 +120,7 @@ index be35e2188..81a676c90 100644
    (check-report)
  ) ;tm-define
 diff --git a/TeXmacs/progs/kernel/gui/kbd-define.scm b/TeXmacs/progs/kernel/gui/kbd-define.scm
-index cddea490c..f1e2e7b7b 100644
+index 2901832a3..e57febc8c 100644
 --- a/TeXmacs/progs/kernel/gui/kbd-define.scm
 +++ b/TeXmacs/progs/kernel/gui/kbd-define.scm
 @@ -128,6 +128,16 @@
@@ -273,8 +273,8 @@ index cddea490c..f1e2e7b7b 100644
 -        `(kbd-binding (list ,@conds) ,key ,action ,help)
 +        `(,binder (list ,@conds) ,key ,action ,help)
        ) ;with
--      `(kbd-binding (list ,@conds) ,key (lambda ,() ,action ,@opt) ,"")
-+      `(,binder (list ,@conds) ,key (lambda ,() ,action ,@opt) ,"")
+-      `(kbd-binding (list ,@conds) ,key (lambda ,() ,action ,@opt) "")
++      `(,binder (list ,@conds) ,key (lambda ,() ,action ,@opt) "")
      ) ;if
    ) ;with
  ) ;define
@@ -454,10 +454,10 @@ index cddea490c..f1e2e7b7b 100644
  ;; Definition of keyboard (backslashed) commands
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 diff --git a/TeXmacs/progs/source/shortcut-edit.scm b/TeXmacs/progs/source/shortcut-edit.scm
-index 1a78a342c..f7fad73ac 100644
+index 3b947ed22..10ca70fbc 100644
 --- a/TeXmacs/progs/source/shortcut-edit.scm
 +++ b/TeXmacs/progs/source/shortcut-edit.scm
-@@ -121,7 +121,7 @@
+@@ -119,7 +119,7 @@
  ) ;define
  
  (define (apply-user-shortcut sh cmd)
@@ -467,7 +467,7 @@ index 1a78a342c..f7fad73ac 100644
  
  (define (unapply-user-shortcut sh)
 
-base-commit: c68a494fc6014f6ea76aae30fcfaa8bc3136bbcc
+base-commit: af724b028e555764ce7373c0792f9c71efd0e012
 -- 
 2.55.0.windows.2
 

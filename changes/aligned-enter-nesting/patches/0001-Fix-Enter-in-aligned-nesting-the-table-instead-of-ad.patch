@@ -1,4 +1,4 @@
-From e09cb601c05e5e388556bd1de8fffa8a7ee55861 Mon Sep 17 00:00:00 2001
+From 3d5a32d000212d70922f33678ef263c0da347b8c Mon Sep 17 00:00:00 2001
 From: Gennady Uraltsev <gennady.uraltsev@gmail.com>
 Date: Sat, 17 Oct 2026 19:40:22 -0500
 Subject: [PATCH] Fix Enter in aligned nesting the table instead of adding a
@@ -22,7 +22,7 @@ Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/TeXmacs/progs/math/math-edit.scm b/TeXmacs/progs/math/math-edit.scm
-index 53d157ab0..acb432c2b 100644
+index c3e7597f0..45e432db0 100644
 --- a/TeXmacs/progs/math/math-edit.scm
 +++ b/TeXmacs/progs/math/math-edit.scm
 @@ -129,7 +129,7 @@
@@ -35,7 +35,7 @@ index 53d157ab0..acb432c2b 100644
           (l0 (concat-decompose c))
           (l2 (list-scatter l0 binary-relation? #t))
 
-base-commit: c68a494fc6014f6ea76aae30fcfaa8bc3136bbcc
+base-commit: af724b028e555764ce7373c0792f9c71efd0e012
 -- 
 2.55.0.windows.2
 

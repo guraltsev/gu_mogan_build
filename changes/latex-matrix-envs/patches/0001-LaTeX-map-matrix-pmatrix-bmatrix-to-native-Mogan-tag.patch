@@ -1,4 +1,4 @@
-From 1d9023a98ae33f50a7a33bb80523e4a59c676f11 Mon Sep 17 00:00:00 2001
+From 83e064573508c4bb5666ceedb2fac8b29941e655 Mon Sep 17 00:00:00 2001
 From: Gennady Uraltsev <gennady.uraltsev@gmail.com>
 Date: Sat, 17 Oct 2026 22:29:00 -0500
 Subject: [PATCH] LaTeX: map matrix/pmatrix/bmatrix to native Mogan tags
@@ -37,7 +37,7 @@ index 5fbd54ac3..950adfa99 100644
    (begin-alignat "amsmath")
    (begin-alignat* "amsmath")
 diff --git a/TeXmacs/plugins/latex/progs/latex/convert-latex-tmtex.scm b/TeXmacs/plugins/latex/progs/latex/convert-latex-tmtex.scm
-index 55350bb21..05da5867c 100644
+index 60b7f47d8..ed17f66c8 100644
 --- a/TeXmacs/plugins/latex/progs/latex/convert-latex-tmtex.scm
 +++ b/TeXmacs/plugins/latex/progs/latex/convert-latex-tmtex.scm
 @@ -355,13 +355,7 @@
@@ -171,7 +171,7 @@ index b28f0eb92..69b73cb5d 100644
          else if (u[i][0] == "smallmatrix")
            parse_pmatrix (r, u, i, "", "", "matrix*");
 
-base-commit: c68a494fc6014f6ea76aae30fcfaa8bc3136bbcc
+base-commit: af724b028e555764ce7373c0792f9c71efd0e012
 -- 
 2.55.0.windows.2
 

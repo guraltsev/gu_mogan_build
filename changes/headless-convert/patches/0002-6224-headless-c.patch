@@ -1,0 +1,69 @@
+From ff92a9a7efbb6c4a819af2ea92799aa5db88d1c6 Mon Sep 17 00:00:00 2001
+From: pigmagicfly <2831850183@qq.com>
+Date: Mon, 19 Oct 2026 18:03:31 +0800
+Subject: [PATCH 2/2] =?UTF-8?q?[6224]=20=E7=B2=BE=E7=AE=80=20headless=20-c?=
+ =?UTF-8?q?=20=E8=BD=AC=E6=8D=A2=E5=91=BD=E4=BB=A4=E5=B9=B6=E4=BF=AE?=
+ =?UTF-8?q?=E5=A4=8D=E9=94=99=E8=AF=AF=E8=BE=93=E5=87=BA=E4=B8=8D=E5=8F=AF?=
+ =?UTF-8?q?=E8=A7=81?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- lazy-plugin-force 之后的两个 plugin-initialize 是 no-op，删除；
+  source-format 绑定随之不再需要
+- headless 下 scheme 输出被重定向进日志，错误信息改写
+  current-error-port 才能到达终端 stderr
+- 注释改为中文精简版，说明 lazy-plugin-force 必须先于格式解析
+---
+ src/System/Boot/init_texmacs.cpp | 26 ++++++++++++--------------
+ 1 file changed, 12 insertions(+), 14 deletions(-)
+
+diff --git a/src/System/Boot/init_texmacs.cpp b/src/System/Boot/init_texmacs.cpp
+index ea6293f6c..7c643417b 100644
+--- a/src/System/Boot/init_texmacs.cpp
++++ b/src/System/Boot/init_texmacs.cpp
+@@ -831,29 +831,27 @@ TeXmacs_main (int argc, char** argv) {
+                             scm_quote (as_string (out)) * ")";
+             }
+             else {
+-              // In headless mode there is no active view, so export-buffer
+-              // cannot safely use current-buffer after load-buffer.  Load and
+-              // export the buffer addressed by the input URL explicitly.
+-              // Formats such as latex are only registered once their plugin is
+-              // loaded, and the output file usually does not exist yet, so
+-              // force the plugins first and take the target format from the
+-              // suffix; url-format would answer "generic" and drop the markup.
++              // headless 无活动 view，export-buffer 依赖
++              // current-buffer 不可靠，改为按 URL 显式加载/导出；
++              // latex/tmu 等格式由插件注册，lazy-plugin-force
++              // 须先于格式解析（目标文件尚不存在，目标格式取自
++              // 后缀，url-format 只会答 generic）；headless 下
++              // scheme 输出进日志，错误写 current-error-port 到终端。
+               my_init_cmds=
+                   my_init_cmds * " " *
+                   "(let* ((dummy (lazy-plugin-force)) (source (system->url " *
+                   scm_quote (as_string (in)) * ")) " *
+                   "       (target (system->url " * scm_quote (as_string (out)) *
+-                  ")) " * "       (source-format (url-format source)) " *
++                  ")) " *
+                   "       (target-format (format-from-suffix (url-suffix "
+                   "target)))) " *
+-                  "  (plugin-initialize (string->symbol source-format)) " *
+-                  "  (plugin-initialize (string->symbol target-format)) " *
+                   "  (if (buffer-load source) " *
+-                  "      (display* \"TeXmacs] Could not load \" " *
+-                  "(url->system source) \"\\n\") " *
++                  "      (display (string-append \"TeXmacs] Could not load "
++                  "\" " *
++                  "(url->system source) \"\\n\") (current-error-port)) " *
+                   "      (when (buffer-export source target target-format) " *
+-                  "        (display* \"TeXmacs] Could not export \" " *
+-                  "(url->system target) \"\\n\"))))";
++                  "        (display (string-append \"TeXmacs] Could not export "
++                  "\" (url->system target) \"\\n\") (current-error-port)))))";
+             }
+           }
+           // -c 默认隐含 -q：转换完成后自动退出
+-- 
+2.55.0.windows.2
+

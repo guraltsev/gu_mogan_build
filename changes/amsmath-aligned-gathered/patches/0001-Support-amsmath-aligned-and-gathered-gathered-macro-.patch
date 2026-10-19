@@ -1,4 +1,4 @@
-From 58148954abf246b8f717b1ce03ba8e079eeef85f Mon Sep 17 00:00:00 2001
+From 115c45b0e047a274dd80ecc8b40b9362f63d1930 Mon Sep 17 00:00:00 2001
 From: Gennady Uraltsev <gennady.uraltsev@gmail.com>
 Date: Sat, 17 Oct 2026 19:40:21 -0500
 Subject: [PATCH] Support amsmath aligned and gathered: gathered macro, LaTeX
@@ -91,7 +91,7 @@ index 5fbd54ac3..1823feb4d 100644
    (begin-alignat* "amsmath")
    (begin-xalignat "amsmath")
 diff --git a/TeXmacs/progs/math/math-edit.scm b/TeXmacs/progs/math/math-edit.scm
-index 53d157ab0..01fb0bb2a 100644
+index c3e7597f0..1dca78a97 100644
 --- a/TeXmacs/progs/math/math-edit.scm
 +++ b/TeXmacs/progs/math/math-edit.scm
 @@ -27,9 +27,11 @@
@@ -216,7 +216,7 @@ index b28f0eb92..1f6a797e9 100644
            r << tree (SET, MODE, "math");
            spc_flag= item_flag= false;
 
-base-commit: c68a494fc6014f6ea76aae30fcfaa8bc3136bbcc
+base-commit: af724b028e555764ce7373c0792f9c71efd0e012
 -- 
 2.55.0.windows.2
 
