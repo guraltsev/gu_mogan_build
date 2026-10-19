@@ -126,7 +126,9 @@
                 (list sym (list '!append
                                 (string-append "\\NewDocumentCommand{\\" cmd "}{}{")
                                 (list 'mathbb letter)
-                                (string-append "}" (string #\newline))))))
+                                (string-append "} % \\" cmd ": blackboard bold " letter
+                                               " (Mogan " letter letter ")"
+                                               (string #\newline))))))
   ) ;let
 ) ;define
 
@@ -172,7 +174,7 @@
 
 ;; Registrations
 (latex-register-table-macro "lga" "lga" "t"
-  "\\NewDocumentCommand{\\lga}{O{t} m}{\\begin{lgathered}[#1]#2\\end{lgathered}}"
+  "\\NewDocumentCommand{\\lga}{O{t} m}{\\begin{lgathered}[#1]#2\\end{lgathered}} % \\lga[t|c|b]{...}: left-aligned gathered column (Mogan lga)"
   "mathtools")
 
 (latex-register-symbol-command "R" "<bbb-R>" "R")
