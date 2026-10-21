@@ -31,4 +31,4 @@ Use these instead of hand-rolled `git worktree` + build commands.
 ## Branches (rolling fork; details in `.agents/knowledge/fork-workflow.md`)
 - `upstream-main` mirrors MoganLab; `main` = it + my unmerged patches and is append-only (never reset/force-push).
 - New work: `git switch -c pr/<name> upstream-main` (not from `main`); `gf fmt --changed-since=upstream-main`.
-- After upstream changes: `scripts\sync-main.cmd`; after a PR is merged: `scripts\prune-merged.cmd`.
+- After upstream changes: `scripts\sync-main.cmd`; after a PR is merged: `scripts\prune-merged.cmd`, then `scripts\update-fork-readme.cmd -Commit`.

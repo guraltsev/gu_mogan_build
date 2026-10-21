@@ -24,6 +24,7 @@ Everything here assumes this layout:
 | Build another branch/commit beside main            | `worktree-add.cmd <ref>` then `worktree-build.cmd <ref>`  |
 | Throw a worktree away when done                    | `worktree-remove.cmd <ref>`                               |
 | Merge new upstream commits into main            | `sync-main.cmd` (see `.agents/knowledge/fork-workflow.md`) |
+| Refresh the fork README section                   | `update-fork-readme.cmd [-Commit]`                        |
 | Delete branches whose PR upstream merged           | `prune-merged.cmd` (dry run; `-Apply`, `-Remote`)         |
 | Save `pr/*` branches as portable patch files       | `bash scripts/make-patches.sh`                            |
 

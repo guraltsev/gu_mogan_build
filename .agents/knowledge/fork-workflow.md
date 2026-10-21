@@ -19,6 +19,8 @@ is the upstream's `main`, unrelated to the fork's `main`.
   against MoganLab/mogan. Add it to the build: `git switch main; git merge --no-ff pr/<name>`.
 - Upstream moved: `scripts\sync-main.cmd` (fetch, fast-forward `upstream-main`, merge it into `main`).
   Then push `main` and `upstream-main` to `github` (plain pushes).
+- README of the fork: `scripts/update-fork-readme.cmd -Commit` regenerates the generated section at the top
+  (base commit, patch list with PR status) from the branches and `gh`; run it after sync/prune, then push `main`.
 - A PR got merged upstream: sync first, then `scripts\prune-merged.cmd` (dry run; `-Apply`, and `-Remote` for
   the fork copies). Squash merges are invisible to `git branch --merged`, so it asks `gh pr list --state merged`.
   Deleting the `pr/*` branch changes nothing in `main`: the same content already arrived via upstream.
@@ -34,4 +36,6 @@ same change: take theirs.
 ## History
 2026-10-21: after PRs #4744 #4745 #4753 #4755 were merged, `main` was merged with `upstream-main`
 (fast-forward-pushable). The old `main` is kept as `backup/main-before-reset-2026-10-21`; `main-new` is obsolete.
-`latex-user-table-envs` (25 commits, older base) still needs a rebase before it can join `main`.
+`latex-user-table-envs` was retired as `archive/latex-user-table-envs`: all its patches are in `main` or were dropped.
+The `pr/*` branches were NOT rebased onto the new base: they apply cleanly, and rebasing would duplicate patches
+in the append-only `main`.

@@ -25,4 +25,4 @@ if ($LASTEXITCODE) {
   Write-Host "`nConflicts. Resolve, git add, git commit. Then run prune-merged.cmd." -ForegroundColor Yellow
   exit 1
 }
-Write-Host "`nDone. Next: prune-merged.cmd, build/test, then push main and upstream-main to the fork."
+Write-Host "`nDone. Next: prune-merged.cmd, update-fork-readme.cmd -Commit, build/test, then push main and upstream-main to the fork."

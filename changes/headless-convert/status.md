@@ -1,4 +1,12 @@
-# Status: OPEN (not yet accepted)
+# Status: MERGED upstream
+
+- PR: MoganLab/mogan#4745, squash-merged 2026-10-20 as `980bc1ebe` (upstream's final text may differ from the branch; upstream's version wins).
+- Local and fork branch `pr/headless-convert` deleted 2026-10-21; its content reaches `main` through `upstream-main`.
+- Kept here as a record only (PR text, bug report, notes).
+
+## Earlier status notes
+
+### Status: OPEN (not yet accepted)
 
 - PR: MoganLab/mogan#4745 (opened 2026-10-19, still open). Supersedes #4742, which was closed unmerged on 2026-10-19.
 - Base: upstream/main af724b028.
