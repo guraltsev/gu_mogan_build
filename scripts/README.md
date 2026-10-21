@@ -23,6 +23,8 @@ Everything here assumes this layout:
 | Only configure xmake, no build                     | `configure.cmd`                                           |
 | Build another branch/commit beside main            | `worktree-add.cmd <ref>` then `worktree-build.cmd <ref>`  |
 | Throw a worktree away when done                    | `worktree-remove.cmd <ref>`                               |
+| Merge new upstream commits into main            | `sync-main.cmd` (see `.agents/knowledge/fork-workflow.md`) |
+| Delete branches whose PR upstream merged           | `prune-merged.cmd` (dry run; `-Apply`, `-Remote`)         |
 | Save `pr/*` branches as portable patch files       | `bash scripts/make-patches.sh`                            |
 
 ## General rules

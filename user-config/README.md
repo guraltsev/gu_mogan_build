@@ -52,7 +52,14 @@ files go; copy them there and restart Mogan.
 - `moganlab/packages/oper.stem` - Mogan macro `oper`: upright operator name.
 - `moganlab/packages/mathfonts.stem` - Mogan macros `mc mb mbf mf ms` (cal, Bbb, bold, Euler, cal* fonts).
 - `moganlab/packages/lga.stem` - Mogan macro `lga`: left-aligned one-column table, top/centre/bottom
-  baseline from the first argument.
+  position (t/c/b) from the body table's `table-valign` (table menu), one argument.
+- `moganlab/progs/def-macro-latex.scm` + `moganlab/packages/def-macro-latex.stem` - the tag
+  `<def-macro-latex|name|(macro "p1" ... body)|latex-preamble|latex-call>`, put in the document preamble. It
+  defines the Mogan macro and says how it exports: each use is written with `latex-call` (`#1`..`#n` = the
+  converted arguments) and `latex-preamble` is written verbatim into the preamble once, only if the macro is
+  used. Export aborts on: empty `latex-call`, `#k` beyond the macro's arity, a use with the wrong number of
+  arguments. No hoisting of usepackage lines. Not covered: snippet export (copy as LaTeX), macros defined in
+  style packages. Test: `tests/test-defmacrolatex.scm`.
 - `tex/lga.sty` - optional standalone copy of the same definition, for hand-written documents;
   exported files do not need it.
 - `tests/` - headless test suites, one per feature: `test-lga.scm`, `test-symbols.scm`,

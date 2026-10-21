@@ -1,8 +1,11 @@
 ;; User-level LaTeX table macros (no Mogan source changes). Loaded from my-init-texmacs.scm.
 ;;
 ;; (latex-register-table-macro "<cmd>" "<style package>" "<default option>" ["<preamble>" "<latex package>" ...])
-;; Import: \cmd[o]{a <rowbreak> b}  ->  (cmd "o" (table (row (cell a)) (row (cell b))))   (\cmd{..} uses the default)
-;; Export: (cmd "o" (table ...)) -> \cmd[o]{a <rowbreak> b}  (option omitted when equal to the default),
+;; The option is the table's vertical position, kept in the body table (one argument, so the
+;; block is an ordinary table for Enter, row/column insertion and the table menu):
+;; Import: \cmd[o]{a <rowbreak> b}  ->  (cmd (tformat (twith "table-valign" "<T|B|f>") (table (row (cell a)) (row (cell b)))))
+;;         (\cmd{..} / the default option: (cmd (table ...)); the macro supplies the default valign)
+;; Export: that tree -> \cmd[o]{a <rowbreak> b}  (option omitted when equal to the default),
 ;;         and, with a <preamble> string, that text (plus \usepackage of the listed LaTeX
 ;;         packages) is injected into the exported preamble; without one, \usepackage{<cmd>}
 ;;         is added instead, so <cmd>.sty must be findable by LaTeX.
@@ -31,10 +34,33 @@
 ) ;define
 
 ;; ---- export ----
+;; LaTeX [t|b|c] <-> Mogan table-valign: first-row baseline "T", last-row baseline "B",
+;; math axis "f" (lowercase t/b would be the geometric top/bottom edge, which hangs the table
+;; below the surrounding baseline).
+(define (valign->option v)
+  (cond ((member v '("T" "t")) "t") ((member v '("B" "b")) "b") (else "c")))
+
+(define (option->valign o)
+  (cond ((== o "t") "T") ((== o "b") "B") (else "f")))
+
+(define (table-macro-split body default)
+  ;; -> (option . body without the valign setting)
+  (if (and (pair? body) (eq? (car body) 'tformat))
+      (let* ((is-valign? (lambda (e) (and (pair? e) (eq? (car e) 'twith)
+                                          (pair? (cdr e)) (equal? (cadr e) "table-valign")
+                                          (pair? (cddr e)) (string? (caddr e)))))
+             (v (list-find (cdr body) is-valign?))
+             (rest (filter (lambda (e) (not (is-valign? e))) (cdr body))))
+        (cons (if v (valign->option (caddr v)) default)
+              (if (and (pair? rest) (null? (cdr rest))) (car rest) (cons 'tformat rest))))
+      (cons default body))
+) ;define
+
 (define (table-macro-export name l)
   (let* ((reg (ahash-ref latex-table-macros name))
-         (opt (if (> (length l) 1) (car l) (cadr reg)))
-         (res (tmtex (list 'table-macro-rows (cAr l))))
+         (split (table-macro-split (cAr l) (cadr reg)))
+         (opt (car split))
+         (res (tmtex (list 'table-macro-rows (cdr split))))
          (rows (if (and (pair? res) (pair? (car res)) (eq? (caar res) '!begin))
                    (cadr res)
                    res))
@@ -75,6 +101,13 @@
   ) ;let
 ) ;define
 
+;; opt equal to the default is left out: the macro itself supplies it
+(define (table-macro-tree sym default opt rows)
+  (if (== opt default)
+      `(,sym (table ,@rows))
+      `(,sym (tformat (twith "table-valign" ,(option->valign opt)) (table ,@rows))))
+) ;define
+
 (define (transform-table-macros x)
   (define (reg-of s) (ahash-ref latex-table-macros s))
   (define (use! reg) (set! latex-table-macros-used (cons (car reg) latex-table-macros-used)))
@@ -83,10 +116,12 @@
                 (base (table-macro-star-name s)))
            (cond ((and (null? (cddr x)) (reg-of s))
                   (use! (reg-of s))
-                  `(,(car x) ,(cadr (reg-of s)) (table ,@(table-macro-rows (transform-table-macros (cadr x))))))
+                  (table-macro-tree (car x) (cadr (reg-of s)) (cadr (reg-of s))
+                                    (table-macro-rows (transform-table-macros (cadr x)))))
                  ((and base (reg-of base) (pair? (cddr x)) (null? (cdddr x)) (string? (cadr x)))
                   (use! (reg-of base))
-                  `(,(string->symbol base) ,(cadr x) (table ,@(table-macro-rows (transform-table-macros (caddr x))))))
+                  (table-macro-tree (string->symbol base) (cadr (reg-of base)) (cadr x)
+                                    (table-macro-rows (transform-table-macros (caddr x)))))
                  (else (cons (car x) (map transform-table-macros (cdr x)))))))
         ((pair? x) (map transform-table-macros x))
         (else x)

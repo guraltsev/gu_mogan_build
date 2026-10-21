@@ -39,7 +39,7 @@
 ;; these tags need their style package: the command adds it
 (define (test-package-macros)
   (with r (typed "lga" "x")
-    (check (cadr (car r)) => '(lga "t" (table (row (cell "x")))))
+    (check (cadr (car r)) => '(lga (table (row (cell "x")))))
     (check (member "lga" (cdr r)) => '("lga")))
   (with r (typed "oper" "foo")
     (check (cadr (car r)) => '(oper "foo"))
@@ -53,7 +53,7 @@
   (user-insert-lga)
   (insert "x")
   (check (cadr (cadr (tree->stree (buffer-tree))))
-         => '(lga "t" (table (row (cell "x")))))
+         => '(lga (table (row (cell "x")))))
   (check (member "lga" (get-style-list)) => '("lga"))
   ;; used twice: the package is added once
   (user-insert-lga)

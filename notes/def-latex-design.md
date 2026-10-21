@@ -1,6 +1,8 @@
 # Design: `def-latex`, a Mogan macro that carries its own hand-written LaTeX
 
-Status: design only, nothing implemented. Everything would live in user space
+Status: IMPLEMENTED as `def-macro-latex` (user-config/moganlab/progs/def-macro-latex.scm). Decisions: name
+def-macro-latex; missing latex-call and arity mismatch are errors; no hoisting; only used macros emitted; lga stays
+on the registry; document macros only. Text below is the original design (said: design only, nothing implemented). Everything would live in user space
 (`user-config/`, no Mogan source change, no rebuild).
 
 ## 1. Goal

@@ -17,6 +17,7 @@ Set A, longer, one topic per file:
 | `scheme-editor-internals.md` | touching menus, keyboard, focus bar, kbd/Enter handlers, style cache |
 | `formatting-gf-fmt.md` | running `gf fmt` / clang-format (local v22 vs CI v19: use a v19 binary for C++, see file) |
 | `pitfalls.md` | before using the shell tool, git on Windows, or writing test fixtures |
+| `fork-workflow.md` | syncing with upstream, adding/removing patches, branch roles (`upstream-main`, `main`, `pr/*`) |
 | `working-with-this-user.md` | before submitting, naming branches, or writing PR/issue text |
 
 Set B, shorter summaries of the same ground (from the nested-norms session):

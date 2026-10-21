@@ -27,3 +27,8 @@ All in `gu_mogan_build/scripts/`, each with a `.cmd` wrapper; run from PowerShel
 - `worktree-build.cmd <ref> [release|releasedbg]` -> builds there into `<worktree>\build\dist-<mode>`.
 - `worktree-remove.cmd <ref> [-Force]` -> deletes that worktree (branch stays).
 Use these instead of hand-rolled `git worktree` + build commands.
+
+## Branches (rolling fork; details in `.agents/knowledge/fork-workflow.md`)
+- `upstream-main` mirrors MoganLab; `main` = it + my unmerged patches and is append-only (never reset/force-push).
+- New work: `git switch -c pr/<name> upstream-main` (not from `main`); `gf fmt --changed-since=upstream-main`.
+- After upstream changes: `scripts\sync-main.cmd`; after a PR is merged: `scripts\prune-merged.cmd`.

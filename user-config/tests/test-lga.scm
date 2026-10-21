@@ -1,17 +1,17 @@
-;; lga: \lga[t|c|b]{rows} <-> (lga "t|c|b" (table ...))
+;; lga: \lga[t|c|b]{rows} <-> (lga (tformat (twith "table-valign" "B") (table ...)))  ("t": no tformat)
 (load (string-append (getenv "UC_TESTS") "/helpers.scm"))
 
 (define (test-import)
   (with d (import-math (tex bs "lga[b]{x" bs bs "z}"))
-    (check (tree-has? d '(lga "b" (table (row (cell "x")) (row (cell "z"))))) => #t)
+    (check (tree-has? d '(lga (tformat (twith "table-valign" "B") (table (row (cell "x")) (row (cell "z")))))) => #t)
     (check (tree-has? d "lga") => #t)) ; style package added
   (with d (import-math (tex bs "lga{p" bs bs "q}"))
-    (check (tree-has? d '(lga "t" (table (row (cell "p")) (row (cell "q"))))) => #t)))
+    (check (tree-has? d '(lga (table (row (cell "p")) (row (cell "q"))))) => #t)))
 
 (define (test-export)
   (let* ((rows '(table (row (cell "x")) (row (cell "z"))))
-         (e (export-math `(lga "b" ,rows)))
-         (d (export-math `(lga "t" ,rows))))
+         (e (export-math `(lga (tformat (twith "table-valign" "B") ,rows))))
+         (d (export-math `(lga ,rows))))
     (check (has? (body-of e) (tex bs "lga[b]{")) => #t)
     (check (has? (body-of d) (tex bs "lga{")) => #t)        ; default option omitted
     (check (has? (body-of d) (tex bs "lga[")) => #f)

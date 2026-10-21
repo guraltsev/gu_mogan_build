@@ -1,0 +1,19 @@
+(document (TeXmacs "1.99.20")
+  (style "source")
+  (body
+    (document
+      (active*
+        (src-title (document (src-package "def-macro-latex" "1.0")
+                     (src-purpose (document "def-macro-latex{name}{macro}{latex-preamble}{latex-call}: defines a Mogan macro together with the LaTeX it exports to (see def-macro-latex.scm).")
+                     ) ;src-purpose
+                   ) ;document
+        ) ;src-title
+      ) ;active*
+      (assign "def-macro-latex"
+        (macro "name" "def" "latex-preamble" "latex-call"
+          (assign (arg "name") (arg "def"))
+        ) ;macro
+      ) ;assign
+    ) ;document
+  ) ;body
+) ;document

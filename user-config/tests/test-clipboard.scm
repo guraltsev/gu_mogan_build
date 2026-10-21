@@ -38,7 +38,7 @@
   (with d (paste (tex bs "oper{Diff}f"))
     (check (tree-has? d '(oper "Diff")) => #t))
   (with d (paste (tex bs "lga[b]{u" bs bs "v}"))
-    (check (tree-has? d '(lga "b" (table (row (cell "u")) (row (cell "v"))))) => #t)
+    (check (tree-has? d '(lga (tformat (twith "table-valign" "B") (table (row (cell "u")) (row (cell "v")))))) => #t)
     (check (tree-has? d 'lga*) => #f)))
 
 (define (test-copy)
@@ -53,7 +53,7 @@
     (check (has? s (tex bs "tmop")) => #f)
     ;; a snippet has no preamble: nothing is defined there
     (check (has? s "NewDocumentCommand") => #f))
-  (with s (copy '(math (lga "b" (table (row (cell "u")) (row (cell "v"))))))
+  (with s (copy '(math (lga (tformat (twith "table-valign" "B") (table (row (cell "u")) (row (cell "v")))))))
     (check (has? s (tex bs "lga[b]{")) => #t))
   (with s (copy '(math (oper "Diff")))
     (check (has? s (tex bs "oper{Diff}")) => #t)))

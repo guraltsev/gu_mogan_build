@@ -92,7 +92,7 @@
 
 (tm-define (user-insert-lga)
   (user-ensure-package "lga")
-  (insert-go-to '(lga "t" (table (row (cell "")))) '(1 0 0 0 0)))
+  (insert-go-to '(lga (table (row (cell "")))) '(0 0 0 0 0)))
 
 (tm-define (user-insert-oper)
   (user-ensure-package "oper")
@@ -250,6 +250,7 @@
 
 ;; LaTeX table macros (lga) (see latex-user-extensions.scm)
 (load (url->system (url-unix "$TEXMACS_HOME_PATH/progs" "latex-user-extensions.scm")))
+(load (url->system (url-unix "$TEXMACS_HOME_PATH/progs" "def-macro-latex.scm")))
 
 
 ;; Typing \name and Enter: the shorthands of latex-user-extensions.scm. Without these

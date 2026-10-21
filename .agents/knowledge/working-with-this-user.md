@@ -4,7 +4,8 @@
   Name leftover/backup branches descriptively too (`original-13-commit-history`, `all-changes-linear`).
 - One branch per change, one commit per branch, each applying to `upstream/main` on its own; branches
   are pushed to the user's fork (`github` remote, `git@github.com:guraltsev/mogan.git`); `upstream` is
-  MoganLab/mogan. The fork's `main` = upstream + all feature branches merged `--no-ff`, one by one.
+  MoganLab/mogan. The fork's `main` = `upstream-main` + all unmerged feature branches merged `--no-ff`, and is append-only
+  (rolling public fork; see `fork-workflow.md`). Branch from `upstream-main`, never from `main`.
 - Ask before: force-pushing, deleting branches, rewriting published commits, anything outward-facing.
   Pushing new feature branches to the fork was explicitly requested earlier.
 - PR/issue texts (`gu_mogan_build/changes/`): each text must stand alone (no "the same paper", no
